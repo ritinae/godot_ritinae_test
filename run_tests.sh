@@ -9,6 +9,8 @@
 #   run_tests.sh -v                also print every step, check and info line
 #   run_tests.sh --tests dir       look for tests in dir instead of test/
 #
+# The framework's own tests are in tests/ (tests/run_self_tests.sh).
+#
 # Set GODOT to use a different Godot binary (default: godot).
 set -u
 cd "$(dirname "$0")/../.."
