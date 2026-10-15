@@ -119,6 +119,12 @@ func all_of(...parts: Array) -> RTAssertion:
 	return expectations.all_of(parts)
 
 
+## One check per item, made by `check` (item -> RTAssertion), as one; reports
+## the first item that fails. each_of(builders, func(b): return b.should_be_idle())
+func each_of(items: Array, check: Callable) -> RTAssertion:
+	return expectations.all_of(items.map(check))
+
+
 ## A group of steps (it), groups (describe) and hooks, run in order.
 func describe(name: String, ...children: Array) -> Dictionary:
 	return {"name": name, "children": children}

@@ -5,4 +5,7 @@ FAIL Expected to not be able to build on top of the other tower, but spot (12, 4
 STEP expect > combines checks
 PASS Expected to have all parts hold
 FAIL Expected to have all parts hold, but the second part failed
-RESULT: 2 passed, 2 failed
+STEP expect > checks each item
+PASS Expected to have every item hold
+FAIL Expected to have every item hold, but b failed
+RESULT: 3 passed, 3 failed

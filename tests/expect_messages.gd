@@ -14,6 +14,10 @@ func spec() -> Dictionary:
 			expect("have all parts hold", all_of(holds(), holds(), holds()))
 			expect("have all parts hold",
 				all_of(holds(), fails("the second part failed"), fails("the third part failed")))),
+		it("checks each item", func():
+			expect("have every item hold", each_of(["a", "b"], func(item): return holds()))
+			expect("have every item hold",
+				each_of(["a", "b", "c"], func(item): return holds() if item == "a" else fails("%s failed" % item)))),
 	)
 
 
