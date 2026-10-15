@@ -1,0 +1,5 @@
+exit 1
+PASS a passing check
+FAIL a failing check
+PASS a check after the failure
+RESULT: 2 passed, 1 failed

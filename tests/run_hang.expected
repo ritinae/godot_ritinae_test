@@ -1,0 +1,4 @@
+exit 1
+PASS a check before hanging
+FAIL test finished within 1 game seconds
+RESULT: 1 passed, 1 failed

@@ -1,0 +1,4 @@
+exit 0
+PASS a check before waiting passes
+PASS a check after waiting passes
+RESULT: 2 passed, 0 failed
