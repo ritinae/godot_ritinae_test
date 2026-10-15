@@ -21,6 +21,34 @@ func now(intent: String, a: RTAssertion) -> void:
 		else "Expected to %s, but %s" % [intent, seen], seen == "")
 
 
+## Comes to hold on some frame within the given game seconds.
+func within(seconds: float, intent: String, a: RTAssertion) -> void:
+	_unused.erase(a)
+	var seen := a.seen()
+	for i in roundi(seconds * t.FPS):
+		if seen == "":
+			break
+		await t.get_tree().process_frame
+		seen = a.seen()
+	t.check("Expected within %s s to %s" % [seconds, intent] if seen == ""
+		else "Expected within %s s to %s, but %s" % [seconds, intent, seen], seen == "")
+
+
+## Holds on every frame for the given game seconds; fails as soon as it doesn't.
+func throughout(seconds: float, intent: String, a: RTAssertion) -> void:
+	_unused.erase(a)
+	var frames := roundi(seconds * t.FPS)
+	var seen := a.seen()
+	var i := 0
+	while seen == "" and i < frames:
+		await t.get_tree().process_frame
+		i += 1
+		seen = a.seen()
+	t.check("Expected to %s for %s s" % [intent, seconds] if seen == ""
+		else "Expected to %s for %s s, but after %.2f s %s" % [intent, seconds, float(i) / t.FPS, seen],
+		seen == "")
+
+
 ## Several assertions as one; reports the first part that fails.
 func all_of(parts: Array) -> RTAssertion:
 	for a in parts:

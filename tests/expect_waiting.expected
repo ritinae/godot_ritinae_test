@@ -1,0 +1,11 @@
+exit 1
+STEP waiting > waits for a check to come true
+PASS Expected within 1.0 s to be ready
+FAIL Expected within 0.25 s to be ready, but it was 15 frames in
+STEP waiting > watches a check stay true
+PASS Expected to stay ready for 0.25 s
+FAIL Expected to stay ready for 1.0 s, but after 0.25 s it stopped 15 frames in
+STEP waiting > acts once while polled
+PASS Expected within 0.5 s to be ready
+PASS the check acted once
+RESULT: 4 passed, 2 failed

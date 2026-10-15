@@ -34,8 +34,9 @@ extends Node
 ##   expect("not be able to build on top of the other tower", map.should_be_blocked(spot, TOWER))
 ##
 ## prints "PASS Expected to not be able to build on top of the other tower", or
-## "FAIL Expected to ..., but spot (12, 4) was free". all_of() makes one check
-## of several. An assertion that never reaches an expect call fails the step
+## "FAIL Expected to ..., but spot (12, 4) was free". expect_within() and
+## expect_throughout() look at the same check on every frame for a while;
+## all_of() makes one check of several. An assertion that never reaches an expect call fails the step
 ## (or hook) it was made in.
 ##
 ## A test can instead override run() (which may await) and check with check().
@@ -99,6 +100,18 @@ func wait_seconds(seconds: float) -> void:
 ## Checks that an assertion holds now: "Expected to <intent>[, but <what was seen>]".
 func expect(intent: String, a: RTAssertion) -> void:
 	expectations.now(intent, a)
+
+
+## Checks that an assertion comes to hold on some frame within the given game
+## seconds. Await it.
+func expect_within(seconds: float, intent: String, a: RTAssertion) -> void:
+	await expectations.within(seconds, intent, a)
+
+
+## Checks that an assertion holds on every frame for the given game seconds.
+## Await it.
+func expect_throughout(seconds: float, intent: String, a: RTAssertion) -> void:
+	await expectations.throughout(seconds, intent, a)
 
 
 ## Several assertions as one; reports the first part that fails.
