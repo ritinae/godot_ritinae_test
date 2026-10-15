@@ -1,0 +1,12 @@
+exit 1
+STEP a page > checks now
+PASS Expected to count to 3
+FAIL Expected to count to 4, but the tally was 3
+PASS Expected to count to 3 and at least 2
+FAIL Expected to count to 3 and at least 5, but the tally was only 3
+STEP a page > checks over frames
+PASS Expected within 0.5 s to reach 10
+PASS Expected to stay at most 30 for 0.1 s
+STEP a page > tracks its checks
+FAIL every check is passed to an expect call (one wasn't: the tally was 23)
+RESULT: 4 passed, 3 failed
