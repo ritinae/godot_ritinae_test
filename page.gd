@@ -10,6 +10,8 @@ extends RefCounted
 ##   looking goes in the probe, which may run on many frames (expect_within).
 ## - A failure says what was there, with actual values ("the player had 470
 ##   wood"); a check of several things says which part failed.
+## - A probe doesn't call should_ checks: those make tracked assertions, which
+##   would never reach an expect call. Share a plain helper between checks.
 ##
 ##   func should_be_blocked(cell: Vector2i, kind: Building.Kind) -> RTAssertion:
 ##   	return _assert(func():

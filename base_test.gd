@@ -18,7 +18,9 @@ extends Node
 ## path ("STEP placing buildings > refusals > refuses a blocked spot") before
 ## its checks. Steps share the test's state; anything one step sets for a later
 ## one must be a script-level variable, since a lambda gets its own copy of a
-## local variable. A test without a single step fails.
+## local variable. A step can't end inside a block (a for loop's body): move
+## the loop into a method and call that last. A test without a single step
+## fails.
 ##
 ## Hooks go into a describe next to its steps, in any order: before_all runs
 ## once before the group's first step and after_all once after its last;
@@ -36,8 +38,9 @@ extends Node
 ## prints "PASS Expected to not be able to build on top of the other tower", or
 ## "FAIL Expected to ..., but spot (12, 4) was free". expect_within() and
 ## expect_throughout() look at the same check on every frame for a while;
-## all_of() makes one check of several. An assertion that never reaches an expect call fails the step
-## (or hook) it was made in.
+## all_of() makes one check of several, each_of() one check per item of a
+## list. An assertion that never reaches an expect call fails the step (or
+## hook) it was made in.
 ##
 ## A test can instead override run() (which may await) and check with check().
 ## Either way, the process exits with 0 when every check passed and at least
