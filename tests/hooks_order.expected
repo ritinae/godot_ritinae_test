@@ -1,0 +1,20 @@
+exit 0
+STEP outer (before all)
+PASS outer before_all
+STEP outer > one
+PASS outer before_each
+PASS one
+PASS outer after_each
+STEP outer > inner > two
+PASS outer before_each
+PASS inner before_each
+PASS two
+PASS inner after_each
+PASS outer after_each
+STEP outer > three
+PASS outer before_each
+PASS three
+PASS outer after_each
+STEP outer (after all)
+PASS outer after_all
+RESULT: 13 passed, 0 failed
