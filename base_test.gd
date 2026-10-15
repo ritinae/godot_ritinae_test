@@ -3,48 +3,9 @@ extends Node
 ## waiting. A project's own base test extends this with what its tests need (the
 ## scene they run in, references into it, helpers), and its tests extend that.
 ##
-## A test returns a tree of steps from spec(), built with describe() and it():
-##
-##   func spec() -> Dictionary:
-##   	return describe("placing buildings",
-##   		it("places a foundation", func():
-##   			check("...", true)),
-##   		describe("refusals",
-##   			it("refuses a blocked spot", func():
-##   				check("...", true))),
-##   	)
-##
-## The steps run in order, each awaited, so a step may await. Each prints its
-## path ("STEP placing buildings > refusals > refuses a blocked spot") before
-## its checks. Steps share the test's state; anything one step sets for a later
-## one must be a script-level variable, since a lambda gets its own copy of a
-## local variable. A step can't end inside a block (a for loop's body): move
-## the loop into a method and call that last. A test without a single step
-## fails.
-##
-## Hooks go into a describe next to its steps, in any order: before_all runs
-## once before the group's first step and after_all once after its last;
-## before_each and after_each wrap every step of the group, nested groups
-## included, outer before_each hooks first and outer after_each hooks last. A
-## step's each-hooks count as part of the step and print under its STEP line;
-## before_all and after_all print their own "STEP <path> (before all)" /
-## "(after all)" line.
-##
-## Checks are best split between the test and a page (see page.gd): the test
-## says what it intends, the page's check says what it saw:
-##
-##   expect("not be able to build on top of the other tower", map.should_be_blocked(spot, TOWER))
-##
-## prints "PASS Expected to not be able to build on top of the other tower", or
-## "FAIL Expected to ..., but spot (12, 4) was free". expect_within() and
-## expect_throughout() look at the same check on every frame for a while;
-## all_of() makes one check of several, each_of() one check per item of a
-## list. An assertion that never reaches an expect call fails the step (or
-## hook) it was made in.
-##
-## A test can instead override run() (which may await) and check with check().
-## Either way, the process exits with 0 when every check passed and at least
-## one did.
+## A test returns its steps from spec() (built with describe(), it() and the
+## hooks), or overrides run() and checks with check(). How to write tests:
+## addons/ritinae_test/docs/tests.md.
 
 const FPS := 60
 
