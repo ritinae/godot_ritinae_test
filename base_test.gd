@@ -28,6 +28,16 @@ extends Node
 ## before_all and after_all print their own "STEP <path> (before all)" /
 ## "(after all)" line.
 ##
+## Checks are best split between the test and a page (see page.gd): the test
+## says what it intends, the page's check says what it saw:
+##
+##   expect("not be able to build on top of the other tower", map.should_be_blocked(spot, TOWER))
+##
+## prints "PASS Expected to not be able to build on top of the other tower", or
+## "FAIL Expected to ..., but spot (12, 4) was free". all_of() makes one check
+## of several. An assertion that never reaches an expect call fails the step
+## (or hook) it was made in.
+##
 ## A test can instead override run() (which may await) and check with check().
 ## Either way, the process exits with 0 when every check passed and at least
 ## one did.
@@ -41,6 +51,10 @@ var max_seconds := 180.0
 ## Number of checks that passed and failed so far; the runner reports them.
 var passed := 0
 var failed := 0
+
+## Checks assertions; pages and the runner reach it here, tests through
+## expect() and all_of().
+var expectations := RTExpect.new(self)
 
 
 ## The test body: runs the steps from spec(). A test may override it instead
@@ -80,6 +94,16 @@ func wait_frames(n: int) -> void:
 
 func wait_seconds(seconds: float) -> void:
 	await wait_frames(roundi(seconds * FPS))
+
+
+## Checks that an assertion holds now: "Expected to <intent>[, but <what was seen>]".
+func expect(intent: String, a: RTAssertion) -> void:
+	expectations.now(intent, a)
+
+
+## Several assertions as one; reports the first part that fails.
+func all_of(...parts: Array) -> RTAssertion:
+	return expectations.all_of(parts)
 
 
 ## A group of steps (it), groups (describe) and hooks, run in order.
@@ -124,6 +148,7 @@ func _run_spec(node: Dictionary, path: Array = [], befores: Array = [], afters: 
 		await node.body.call()
 		for hook in afters:
 			await hook.call()
+		expectations.check_unused()
 		return
 
 	var hooks := {"before_all": [], "before_each": [], "after_each": [], "after_all": []}
@@ -138,12 +163,14 @@ func _run_spec(node: Dictionary, path: Array = [], befores: Array = [], afters: 
 		print("STEP ", " > ".join(path), " (before all)")
 	for hook in hooks.before_all:
 		await hook.call()
+	expectations.check_unused()
 	for child in children:
 		await _run_spec(child, path, befores + hooks.before_each, hooks.after_each + afters)
 	if hooks.after_all:
 		print("STEP ", " > ".join(path), " (after all)")
 	for hook in hooks.after_all:
 		await hook.call()
+	expectations.check_unused()
 
 
 ## The number of steps (it) in a tree, hooks not counted; 0 for an empty spec().

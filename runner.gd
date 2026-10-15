@@ -56,6 +56,8 @@ func _finish() -> void:
 	if _finished:
 		return
 	_finished = true
+	# Also for tests that override run(), whose steps don't check this.
+	_test.expectations.check_unused()
 	print("RESULT: %d passed, %d failed" % [_test.passed, _test.failed])
 	quit(1 if _test.failed > 0 or _test.passed == 0 else 0)
 

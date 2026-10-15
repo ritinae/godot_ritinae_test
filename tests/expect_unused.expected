@@ -1,0 +1,14 @@
+exit 1
+STEP unused (before all)
+FAIL every check is passed to an expect call (one wasn't: made in before_all)
+STEP unused > forgets a failing check
+PASS the step goes on
+FAIL every check is passed to an expect call (one wasn't: the player had 470 wood)
+STEP unused > forgets a passing check
+FAIL every check is passed to an expect call (one wasn't)
+FAIL every check is passed to an expect call (one wasn't)
+STEP unused > forgets an all_of
+FAIL every check is passed to an expect call (one wasn't: a part of all_of)
+STEP unused > forgets nothing
+PASS Expected to have a part checked through all_of
+RESULT: 2 passed, 5 failed

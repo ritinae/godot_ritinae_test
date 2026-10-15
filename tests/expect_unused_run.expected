@@ -1,0 +1,4 @@
+exit 1
+PASS a check that passes
+FAIL every check is passed to an expect call (one wasn't: never checked)
+RESULT: 1 passed, 1 failed

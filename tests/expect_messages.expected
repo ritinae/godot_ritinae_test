@@ -1,0 +1,8 @@
+exit 1
+STEP expect > passes and fails
+PASS Expected to build the tower
+FAIL Expected to not be able to build on top of the other tower, but spot (12, 4) was free
+STEP expect > combines checks
+PASS Expected to have all parts hold
+FAIL Expected to have all parts hold, but the second part failed
+RESULT: 2 passed, 2 failed
