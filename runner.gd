@@ -22,7 +22,7 @@ func _initialize() -> void:
 		_abort("no test given; pass its path after --, e.g. -- res://test/test_example.gd")
 		return
 	var script: Script = load(args[0])
-	if not script:
+	if not script or not script.can_instantiate():
 		_abort("can't load test %s" % args[0])
 		return
 	_test = script.new() as Node
