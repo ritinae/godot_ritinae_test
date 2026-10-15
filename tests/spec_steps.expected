@@ -1,0 +1,8 @@
+exit 0
+STEP outer > first
+PASS the first step runs
+STEP outer > inner > second
+PASS the second step runs after the first one has finished waiting
+STEP outer > third
+PASS the third step runs last
+RESULT: 3 passed, 0 failed

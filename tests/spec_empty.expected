@@ -1,0 +1,3 @@
+exit 1
+FAIL the test has at least one step (it)
+RESULT: 0 passed, 1 failed
