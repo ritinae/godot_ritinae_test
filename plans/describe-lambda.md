@@ -83,7 +83,7 @@ form would stay around.
 - Every `func spec() -> Dictionary: return describe(...)` becomes
   `func spec() -> void: describe(..., func(): ...)`, with the children as
   statements and their trailing commas removed. 69 files: `test/`,
-  `addons/ritinae_iso_sprite_generator/tests/`,
+  `addons/ritinae_isosprite/tests/`,
   `addons/ritinae_editor_tools/tests/` and this addon's self-tests. Use a
   one-off conversion script (kept out of the repo) or convert by hand per
   folder, then run the formatter over the converted files.
