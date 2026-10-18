@@ -3,7 +3,8 @@
 A headless test framework for Godot 4 (GDScript): describe/it steps, hooks,
 page objects and checks that can be looked at on every frame. A project uses
 it through its own base test and tests. How to write tests and pages is in
-[docs/tests.md](docs/tests.md).
+[docs/tests.md](docs/tests.md). The specs (current behaviour) are in
+[docs/spec/](docs/spec/README.md).
 
 ## Commands
 
@@ -60,6 +61,8 @@ the self-tests pass before the change is done.
 - The framework must not depend on any one project: no references to a
   project's classes, scenes or `test/` layout in code. Examples in comments
   and `docs/` may use a game's names.
+- Keep the specs in `docs/spec/` (and its README.md index) up to date with
+  every change to the framework's behaviour. Designs go in `plans/`.
 - Keep [docs/tests.md](docs/tests.md) up to date with every change to how
   tests or pages are written or run. Doc comments in the code describe the
   class and point there, rather than repeating it.
