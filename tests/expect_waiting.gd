@@ -6,17 +6,17 @@ extends "res://addons/ritinae_test/base_test.gd"
 var actions := 0
 
 
-func spec() -> Dictionary:
-	return describe("waiting",
+func spec() -> void:
+	describe("waiting", func():
 		it("waits for a check to come true", func():
 			await expect_within(1.0, "be ready", ready_after(10))
-			await expect_within(0.25, "be ready", ready_after(30))),
+			await expect_within(0.25, "be ready", ready_after(30)))
 		it("watches a check stay true", func():
 			await expect_throughout(0.25, "stay ready", ready_until(30))
-			await expect_throughout(1.0, "stay ready", ready_until(15))),
+			await expect_throughout(1.0, "stay ready", ready_until(15)))
 		it("acts once while polled", func():
 			await expect_within(0.5, "be ready", acting_ready_after(5))
-			check("the check acted once", actions == 1)),
+			check("the check acted once", actions == 1))
 	)
 
 

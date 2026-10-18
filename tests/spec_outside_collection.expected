@@ -1,0 +1,9 @@
+exit 1
+STEP outer > adds more steps
+FAIL it("late") is called in spec() or a describe body
+FAIL before_each() is called in spec() or a describe body
+FAIL describe("late group") is called in spec() or a describe body
+PASS the step goes on after the calls
+STEP outer > next
+PASS the next step runs
+RESULT: 2 passed, 3 failed

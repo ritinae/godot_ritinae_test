@@ -24,7 +24,8 @@ Set `GODOT` to use a different Godot binary.
   the test as hung after `max_seconds`, and exits with 0 when every check
   passed and at least one did.
 - `base_test.gd`: the base every test extends through a project's base test.
-  It holds the `describe`/`it`/hook tree, `check()`, the `expect` calls,
+  It collects the `describe`/`it`/hook tree from `spec()` and runs it, and
+  holds `check()`, the `expect` calls,
   waiting and the pass/fail counts.
 - `page.gd` (`RTPage`), `assertion.gd` (`RTAssertion`) and `expect.gd`
   (`RTExpect`): pages make assertions with `_assert()`. `RTExpect` checks them

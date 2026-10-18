@@ -6,23 +6,23 @@ extends "res://addons/ritinae_test/base_test.gd"
 var after_each_makes_one := false  # makes after_each leave one unused too
 
 
-func spec() -> Dictionary:
-	return describe("unused",
-		before_all(func(): fails("made in before_all")),
+func spec() -> void:
+	describe("unused", func():
+		before_all(func(): fails("made in before_all"))
 		after_each(func():
 			if after_each_makes_one:
-				holds()),
+				holds())
 		it("forgets a failing check", func():
 			fails("the player had 470 wood")
-			check("the step goes on", true)),
+			check("the step goes on", true))
 		it("forgets a passing check", func():
 			holds()
-			after_each_makes_one = true),
+			after_each_makes_one = true)
 		it("forgets an all_of", func():
 			after_each_makes_one = false
-			all_of(holds(), fails("a part of all_of"))),
+			all_of(holds(), fails("a part of all_of")))
 		it("forgets nothing", func():
-			expect("have a part checked through all_of", all_of(holds(), holds()))),
+			expect("have a part checked through all_of", all_of(holds(), holds())))
 	)
 
 

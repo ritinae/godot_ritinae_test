@@ -6,18 +6,19 @@ extends "res://addons/ritinae_test/base_test.gd"
 var order: Array[String] = []
 
 
-func spec() -> Dictionary:
-	return describe("outer",
+func spec() -> void:
+	describe("outer", func():
 		it("first", func():
 			order.append("first")
 			await wait_frames(3)
 			order.append("first, after waiting")
-			check("the first step runs", true)),
-		describe("inner",
+			check("the first step runs", true))
+		describe("inner", func():
 			it("second", func():
 				order.append("second")
 				check("the second step runs after the first one has finished waiting",
-					order == ["first", "first, after waiting", "second"]))),
+					order == ["first", "first, after waiting", "second"]))
+		)
 		it("third", func():
-			check("the third step runs last", order.size() == 3)),
+			check("the third step runs last", order.size() == 3))
 	)

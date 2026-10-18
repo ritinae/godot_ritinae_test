@@ -3,8 +3,8 @@ extends Node
 ## waiting. A project's own base test extends this with what its tests need (the
 ## scene they run in, references into it, helpers), and its tests extend that.
 ##
-## A test returns its steps from spec() (built with describe(), it() and the
-## hooks), or overrides run() and checks with check(). How to write tests:
+## A test adds its steps in spec() (with describe(), it() and the hooks), or
+## overrides run() and checks with check(). How to write tests:
 ## addons/ritinae_test/docs/tests.md.
 
 const FPS := 60
@@ -21,20 +21,27 @@ var failed := 0
 ## expect() and all_of().
 var expectations := RTExpect.new(self)
 
+## The groups being built, innermost last; empty once spec() has returned.
+var _collecting: Array[Dictionary] = []
+
 
 ## The test body: runs the steps from spec(). A test may override it instead
 ## of spec(). May await.
 func run() -> void:
-	var tree := spec()
+	var tree := {"name": "", "children": []}
+	_collecting.push_back(tree)
+	spec()
+	_collecting.pop_back()
 	if _count_steps(tree) == 0:
 		check("the test has at least one step (it)", false)
 		return
 	await _run_spec(tree)
 
 
-## The test's steps, built with describe() and it(). None by default.
-func spec() -> Dictionary:
-	return {}
+## The test's steps, added with describe(), it() and the hooks. Its top level
+## works like a describe body without a name. None by default.
+func spec() -> void:
+	pass
 
 
 ## The scene the test runs in, added to the tree before the test. None by
@@ -89,43 +96,71 @@ func each_of(items: Array, check: Callable) -> RTAssertion:
 	return expectations.all_of(items.map(check))
 
 
-## A group of steps (it), groups (describe) and hooks, run in order.
-func describe(name: String, ...children: Array) -> Dictionary:
-	return {"name": name, "children": children}
+## A group of steps (it), groups (describe) and hooks: calls body right away,
+## and what it calls inside body goes into the group. body must not await.
+func describe(name: String, body: Callable) -> void:
+	if not _can_add("describe", name):
+		return
+	var group := {"name": name, "children": []}
+	_collecting.push_back(group)
+	body.call()
+	_collecting.pop_back()
+	_add(group)
 
 
 ## One step. Its body isn't run here; run() runs the whole tree once it's built.
-func it(name: String, body: Callable) -> Dictionary:
-	return {"name": name, "body": body}
+func it(name: String, body: Callable) -> void:
+	if _can_add("it", name):
+		_add({"name": name, "body": body})
 
 
 ## Runs once, before the first step of the describe it's in.
-func before_all(body: Callable) -> Dictionary:
-	return {"hook": "before_all", "body": body}
+func before_all(body: Callable) -> void:
+	_add_hook("before_all", body)
 
 
 ## Runs before every step of the describe it's in, nested describes included.
-func before_each(body: Callable) -> Dictionary:
-	return {"hook": "before_each", "body": body}
+func before_each(body: Callable) -> void:
+	_add_hook("before_each", body)
 
 
 ## Runs after every step of the describe it's in, nested describes included.
-func after_each(body: Callable) -> Dictionary:
-	return {"hook": "after_each", "body": body}
+func after_each(body: Callable) -> void:
+	_add_hook("after_each", body)
 
 
 ## Runs once, after the last step of the describe it's in.
-func after_all(body: Callable) -> Dictionary:
-	return {"hook": "after_all", "body": body}
+func after_all(body: Callable) -> void:
+	_add_hook("after_all", body)
+
+
+func _add_hook(hook: String, body: Callable) -> void:
+	if _can_add(hook, ""):
+		_add({"hook": hook, "body": body})
+
+
+## Whether a describe, step or hook can be added now: only while spec() is
+## collected. Fails the test otherwise (e.g. it() inside a step).
+func _can_add(call: String, name: String) -> bool:
+	if _collecting:
+		return true
+	var what := "%s(\"%s\")" % [call, name] if name else call + "()"
+	check(what + " is called in spec() or a describe body", false)
+	return false
+
+
+func _add(child: Dictionary) -> void:
+	_collecting.back().children.append(child)
 
 
 ## Runs a step, or a describe with its hooks. `befores` and `afters` are the
 ## each-hooks of the describes around it: outer before_each hooks run first,
 ## outer after_each hooks run last.
 func _run_spec(node: Dictionary, path: Array = [], befores: Array = [], afters: Array = []) -> void:
-	path = path + [node.name]
+	if node.name:
+		path = path + [node.name]
 	if node.has("body"):
-		print("STEP ", " > ".join(path))
+		_print_step(path)
 		for hook in befores:
 			await hook.call()
 		await node.body.call()
@@ -143,17 +178,23 @@ func _run_spec(node: Dictionary, path: Array = [], befores: Array = [], afters: 
 			children.append(child)
 
 	if hooks.before_all:
-		print("STEP ", " > ".join(path), " (before all)")
+		_print_step(path, "(before all)")
 	for hook in hooks.before_all:
 		await hook.call()
 	expectations.check_unused()
 	for child in children:
 		await _run_spec(child, path, befores + hooks.before_each, hooks.after_each + afters)
 	if hooks.after_all:
-		print("STEP ", " > ".join(path), " (after all)")
+		_print_step(path, "(after all)")
 	for hook in hooks.after_all:
 		await hook.call()
 	expectations.check_unused()
+
+
+## Prints the STEP line of a step, or of a describe's "(before all)" /
+## "(after all)" hooks. The root's hooks print only the hook part.
+func _print_step(path: Array, hooks := "") -> void:
+	print("STEP ", (" > ".join(path) + " " + hooks).strip_edges())
 
 
 ## The number of steps (it) in a tree, hooks not counted; 0 for an empty spec().

@@ -3,10 +3,11 @@ extends "res://addons/ritinae_test/base_test.gd"
 ## running the hooks.
 
 
-func spec() -> Dictionary:
-	return describe("outer",
-		before_all(func(): check("before_all never runs", true)),
-		before_each(func(): check("before_each never runs", true)),
-		describe("inner",
-			after_all(func(): check("after_all never runs", true))),
+func spec() -> void:
+	describe("outer", func():
+		before_all(func(): check("before_all never runs", true))
+		before_each(func(): check("before_each never runs", true))
+		describe("inner", func():
+			after_all(func(): check("after_all never runs", true))
+		)
 	)

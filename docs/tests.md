@@ -25,8 +25,9 @@ godot --headless --fixed-fps 60 --script res://addons/ritinae_test/runner.gd -- 
 
 ## Writing a test
 
-A test returns a tree of steps from `spec()`, built with `describe()` and
-`it()`:
+A test adds its steps in `spec()` with `describe()` and `it()`. A describe
+takes a body lambda, and the `it()`, `describe()` and hook calls in that body
+go into its group:
 
 ```gdscript
 extends "res://test/base_test.gd"
@@ -35,23 +36,32 @@ extends "res://test/base_test.gd"
 var hall: BuildingPage
 
 
-func spec() -> Dictionary:
-	return describe("the economy loop",
-		before_all(func():
-			hall = me.town_hall()),
+func spec() -> void:
+	describe("the economy loop", func():
+		before_all(func(): hall = me.town_hall())
 
 		it("trains a worker", func():
 			me.select([hall])
 			me.run_command("train_worker")
 			expect("charge 50 food for a worker", economy.should_have(me, "food", 150))
 			await wait_seconds(30)
-			expect("train the worker", me.should_have_unit_count(4))),
+			expect("train the worker", me.should_have_unit_count(4)),
+		),
 	)
 ```
 
 - Steps run in order, and each is awaited, so a step may `await`. Each step
   prints its path (`STEP the economy loop > trains a worker`) before its
   checks.
+- The top level of `spec()` works like a describe body without a name. It
+  may hold several groups, steps and hooks, and adds nothing to the paths.
+- A describe body runs right away, while `spec()` collects the tree, before
+  any hook or step. It only adds steps, groups and hooks: set things up in
+  `before_all` / `before_each`, and don't `await` in it. Calls to `it()`,
+  `describe()` or a hook made after an await, or inside a step or hook, fail
+  the test.
+- A helper may add a group too: `func _suite_at(name: String) -> void:` with
+  a `describe()` inside, called from a describe body.
 - Steps share the test's state. Anything one step sets for a later one must
   be a script-level variable, because a lambda gets its own copy of a local.
 - A step can't end inside a block, such as a `for` loop's body. Move the loop
@@ -62,11 +72,12 @@ func spec() -> Dictionary:
 
 ### Hooks
 
-Hooks go into a `describe` next to its steps, in any order:
+Hooks go into a describe body (or the top level of `spec()`) next to its
+steps, in any order:
 
 - `before_all` runs once before the group's first step, `after_all` once after
   its last. Each prints its own `STEP <path> (before all)` / `(after all)`
-  line.
+  line; at the top level just `STEP (before all)` / `STEP (after all)`.
 - `before_each` and `after_each` wrap every step of the group, nested groups
   included. Outer `before_each` hooks run first and outer `after_each` hooks
   last. They count as part of the step and print under its `STEP` line.

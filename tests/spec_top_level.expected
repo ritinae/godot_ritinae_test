@@ -1,0 +1,15 @@
+exit 0
+STEP (before all)
+PASS top-level before_all
+STEP top-level step
+PASS top-level before_each
+PASS top-level step
+STEP first > one
+PASS top-level before_each
+PASS one
+STEP second > two
+PASS top-level before_each
+PASS two
+STEP (after all)
+PASS top-level after_all
+RESULT: 8 passed, 0 failed

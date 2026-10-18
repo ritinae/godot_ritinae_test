@@ -4,20 +4,20 @@ extends "res://addons/ritinae_test/base_test.gd"
 ## fails.
 
 
-func spec() -> Dictionary:
-	return describe("expect",
+func spec() -> void:
+	describe("expect", func():
 		it("passes and fails", func():
 			expect("build the tower", holds())
 			expect("not be able to build on top of the other tower",
-				fails("spot (12, 4) was free"))),
+				fails("spot (12, 4) was free")))
 		it("combines checks", func():
 			expect("have all parts hold", all_of(holds(), holds(), holds()))
 			expect("have all parts hold",
-				all_of(holds(), fails("the second part failed"), fails("the third part failed")))),
+				all_of(holds(), fails("the second part failed"), fails("the third part failed"))))
 		it("checks each item", func():
 			expect("have every item hold", each_of(["a", "b"], func(item): return holds()))
 			expect("have every item hold",
-				each_of(["a", "b", "c"], func(item): return holds() if item == "a" else fails("%s failed" % item)))),
+				each_of(["a", "b", "c"], func(item): return holds() if item == "a" else fails("%s failed" % item))))
 	)
 
 
