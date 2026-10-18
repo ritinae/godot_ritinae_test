@@ -12,13 +12,16 @@ func spec() -> void:
 			order.append("first")
 			await wait_frames(3)
 			order.append("first, after waiting")
-			check("the first step runs", true))
+			check("the first step runs", true),
+		)
 		describe("inner", func():
 			it("second", func():
 				order.append("second")
-				check("the second step runs after the first one has finished waiting",
-					order == ["first", "first, after waiting", "second"]))
+				check(
+					"the second step runs after the first one has finished waiting",
+					order == ["first", "first, after waiting", "second"],
+				),
+			),
 		)
-		it("third", func():
-			check("the third step runs last", order.size() == 3))
+		it("third", func(): check("the third step runs last", order.size() == 3)),
 	)

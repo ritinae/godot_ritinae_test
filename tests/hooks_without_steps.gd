@@ -8,6 +8,6 @@ func spec() -> void:
 		before_all(func(): check("before_all never runs", true))
 		before_each(func(): check("before_each never runs", true))
 		describe("inner", func():
-			after_all(func(): check("after_all never runs", true))
-		)
+			after_all(func(): check("after_all never runs", true)),
+		),
 	)

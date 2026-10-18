@@ -9,7 +9,7 @@ func spec() -> void:
 			it("late", func(): check("the late step runs", true))
 			before_each(func(): check("the late hook runs", true))
 			describe("late group", func(): check("the late group's body runs", true))
-			check("the step goes on after the calls", true)
+			check("the step goes on after the calls", true),
 		)
-		it("next", func(): check("the next step runs", true))
+		it("next", func(): check("the next step runs", true)),
 	)

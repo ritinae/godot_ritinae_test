@@ -3,7 +3,7 @@ extends RefCounted
 ## A check that can be looked at again on any frame. Made by a page's
 ## _assert() (or RTExpect.all_of()) and checked with the test's expect calls.
 
-var probe: Callable  # returns "" while the check holds, else what was seen
+var probe: Callable # returns "" while the check holds, else what was seen
 
 
 func _init(p: Callable) -> void:

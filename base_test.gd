@@ -28,7 +28,7 @@ var _collecting: Array[Dictionary] = []
 ## The test body: runs the steps from spec(). A test may override it instead
 ## of spec(). May await.
 func run() -> void:
-	var tree := {"name": "", "children": []}
+	var tree := { "name": "", "children": [] }
 	_collecting.push_back(tree)
 	spec()
 	_collecting.pop_back()
@@ -101,7 +101,7 @@ func each_of(items: Array, check: Callable) -> RTAssertion:
 func describe(name: String, body: Callable) -> void:
 	if not _can_add("describe", name):
 		return
-	var group := {"name": name, "children": []}
+	var group := { "name": name, "children": [] }
 	_collecting.push_back(group)
 	body.call()
 	_collecting.pop_back()
@@ -111,7 +111,7 @@ func describe(name: String, body: Callable) -> void:
 ## One step. Its body isn't run here; run() runs the whole tree once it's built.
 func it(name: String, body: Callable) -> void:
 	if _can_add("it", name):
-		_add({"name": name, "body": body})
+		_add({ "name": name, "body": body })
 
 
 ## Runs once, before the first step of the describe it's in.
@@ -136,7 +136,7 @@ func after_all(body: Callable) -> void:
 
 func _add_hook(hook: String, body: Callable) -> void:
 	if _can_add(hook, ""):
-		_add({"hook": hook, "body": body})
+		_add({ "hook": hook, "body": body })
 
 
 ## Whether a describe, step or hook can be added now: only while spec() is
@@ -169,7 +169,7 @@ func _run_spec(node: Dictionary, path: Array = [], befores: Array = [], afters: 
 		expectations.check_unused()
 		return
 
-	var hooks := {"before_all": [], "before_each": [], "after_each": [], "after_all": []}
+	var hooks := { "before_all": [], "before_each": [], "after_each": [], "after_all": [] }
 	var children := []
 	for child in node.children:
 		if child.has("hook"):

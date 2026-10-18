@@ -9,18 +9,21 @@ func spec() -> void:
 		before_all(func(): check("outer before_all", true))
 		before_each(func():
 			await wait_frames(2)
-			check("outer before_each", true))
+			check("outer before_each", true),
+		)
 		after_each(func(): check("outer after_each", true))
 		after_all(func():
 			await wait_frames(2)
-			check("outer after_all", true))
+			check("outer after_all", true),
+		)
 		it("one", func(): check("one", true))
 		describe("inner", func():
 			before_each(func(): check("inner before_each", true))
 			after_each(func():
 				await wait_frames(2)
-				check("inner after_each", true))
-			it("two", func(): check("two", true))
+				check("inner after_each", true),
+			)
+			it("two", func(): check("two", true)),
 		)
-		it("three", func(): check("three", true))
+		it("three", func(): check("three", true)),
 	)

@@ -5,5 +5,5 @@ extends "res://addons/ritinae_test/base_test.gd"
 func spec() -> void:
 	describe("outer", func():
 		describe("inner", func(): pass)
-		describe("another", func(): pass)
+		describe("another", func(): pass),
 	)

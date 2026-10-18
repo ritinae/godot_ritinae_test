@@ -8,8 +8,8 @@ func spec() -> void:
 	describe("outer", func():
 		it("first", func():
 			await wait_frames(5)
-			check("the first step runs", true)
+			check("the first step runs", true),
 		)
 		await wait_frames(1)
-		it("late", func(): check("the late step runs", true))
+		it("late", func(): check("the late step runs", true)),
 	)

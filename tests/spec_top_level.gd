@@ -9,8 +9,8 @@ func spec() -> void:
 	after_all(func(): check("top-level after_all", true))
 	it("top-level step", func(): check("top-level step", true))
 	describe("first", func():
-		it("one", func(): check("one", true))
+		it("one", func(): check("one", true)),
 	)
 	describe("second", func():
-		it("two", func(): check("two", true))
+		it("two", func(): check("two", true)),
 	)
