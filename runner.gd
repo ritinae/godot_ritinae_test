@@ -16,6 +16,16 @@ var _elapsed := 0.0
 var _finished := false
 
 
+func _process(delta: float) -> bool:
+	if not _test or _finished:
+		return false
+	_elapsed += delta
+	if _elapsed > _test.max_seconds:
+		_test.check("test finished within %d game seconds" % _test.max_seconds, false)
+		_finish()
+	return false
+
+
 func _initialize() -> void:
 	var args := OS.get_cmdline_user_args()
 	if args.is_empty():
@@ -40,16 +50,6 @@ func _run() -> void:
 	await process_frame
 	await _test.run()
 	_finish()
-
-
-func _process(delta: float) -> bool:
-	if not _test or _finished:
-		return false
-	_elapsed += delta
-	if _elapsed > _test.max_seconds:
-		_test.check("test finished within %d game seconds" % _test.max_seconds, false)
-		_finish()
-	return false
 
 
 func _finish() -> void:
