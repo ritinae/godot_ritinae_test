@@ -34,6 +34,8 @@ Set `GODOT` to use a different Godot binary.
 - `run_tests.sh`: runs every `test_*.gd` in a tests folder and summarises.
   `import.sh` (sourced by both scripts) imports the project first when the
   import cache is missing or stale.
+- `plugin.cfg` and `test_plugin.gd`: an empty editor plugin that lists the
+  framework in Project Settings → Plugins.
 - `tests/`: the self-tests.
 
 ## Output contract
