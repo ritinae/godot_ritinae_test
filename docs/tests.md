@@ -12,6 +12,7 @@ references into it, helpers and pages.
 addons/ritinae_test/run_tests.sh                 # all tests in test/
 addons/ritinae_test/run_tests.sh economy         # tests whose name contains "economy"
 addons/ritinae_test/run_tests.sh gameplay/camp   # tests in a folder (and its subfolders)
+addons/ritinae_test/run_tests.sh camp economy    # tests whose name contains "camp" or "economy"
 addons/ritinae_test/run_tests.sh -v              # also print every step, check and info line
 addons/ritinae_test/run_tests.sh --tests dir     # look for tests in dir instead of test/
 ```

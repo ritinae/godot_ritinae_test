@@ -13,7 +13,9 @@ scripts parse.
 - A test's name is its path under that folder without `.gd`
   (`gameplay/test_economy`).
 - A filter argument keeps the tests whose name contains it, so `economy`
-  matches a file and `gameplay/camp` a folder and its subfolders.
+  matches a file and `gameplay/camp` a folder and its subfolders. With
+  several filters, a test runs when its name contains any of them; each test
+  runs once.
 - The script works from any directory; paths are relative to the project
   root.
 - A missing tests folder prints `No tests folder <dir>` and exits with 1. An
@@ -109,7 +111,7 @@ The runner prints, in order:
 | Command | Action |
 |---|---|
 | `run_tests.sh` | Run every test in `test/` |
-| `run_tests.sh <filter>` | Run the tests whose name contains the filter |
+| `run_tests.sh <filter>...` | Run the tests whose name contains any of the filters |
 | `run_tests.sh -v` | Also print every step, check and info line |
 | `run_tests.sh --tests <dir>` | Look for tests in `<dir>` |
 | `tests/run_self_tests.sh [filter]` | Run the framework's self-tests |

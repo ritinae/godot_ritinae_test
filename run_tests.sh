@@ -6,6 +6,7 @@
 #   run_tests.sh                   run all tests in test/
 #   run_tests.sh economy           run tests whose name contains "economy"
 #   run_tests.sh gameplay/camp     run the tests in a folder (and its subfolders)
+#   run_tests.sh camp economy      run tests whose name contains any of the filters
 #   run_tests.sh -v                also print every step, check and info line
 #   run_tests.sh --tests dir       look for tests in dir instead of test/
 #
@@ -19,7 +20,7 @@ godot=${GODOT:-godot}
 runner=res://addons/ritinae_test/runner.gd
 tests=test
 verbose=0
-filter=""
+filters=()
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		-v) verbose=1 ;;
@@ -31,7 +32,7 @@ while [[ $# -gt 0 ]]; do
 			echo "Unknown option $1"
 			exit 2
 			;;
-		*) filter="$1" ;;
+		*) filters+=("$1") ;;
 	esac
 	shift
 done
@@ -44,12 +45,21 @@ fi
 source addons/ritinae_test/import.sh
 ensure_imported || exit 1
 
+matches_filters() {
+	[[ ${#filters[@]} -eq 0 ]] && return 0
+	local filter
+	for filter in "${filters[@]}"; do
+		[[ "$1" == *"$filter"* ]] && return 0
+	done
+	return 1
+}
+
 failed=()
 count=0
 while IFS= read -r path; do
 	name=${path#"$tests"/}
 	name=${name%.gd}
-	[[ -n "$filter" && "$name" != *"$filter"* ]] && continue
+	matches_filters "$name" || continue
 	count=$((count + 1))
 	output=$(timeout 300 "$godot" --headless --fixed-fps 60 --script "$runner" -- "res://$path" 2>&1 </dev/null)
 	status=$?

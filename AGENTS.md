@@ -13,7 +13,7 @@ Run from anywhere; the scripts work from the project root.
 ```sh
 addons/ritinae_test/tests/run_self_tests.sh         # run the framework's self-tests
 addons/ritinae_test/tests/run_self_tests.sh hooks   # self-tests whose name contains "hooks"
-addons/ritinae_test/run_tests.sh [filter] [-v] [--tests dir]   # run a project's tests (default dir: test/)
+addons/ritinae_test/run_tests.sh [filter...] [-v] [--tests dir]   # run a project's tests (default dir: test/)
 ```
 
 Set `GODOT` to use a different Godot binary.
