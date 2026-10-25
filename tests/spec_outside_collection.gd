@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## Steps, hooks and groups can only be added while spec() runs. Adding one from
 ## inside a step fails the test, and what it adds never runs.
 

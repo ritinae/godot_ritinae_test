@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A run() test with one failing check fails, and its other checks still count.
 
 

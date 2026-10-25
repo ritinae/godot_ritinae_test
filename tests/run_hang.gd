@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A test still running after max_seconds fails as hung.
 
 

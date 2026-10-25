@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## describe/it steps run in order, nested groups included, each printing its
 ## path first. A step may await, and the next one waits for it. Script-level
 ## variables carry state from one step to the next.

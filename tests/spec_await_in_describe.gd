@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A describe body that awaits gives control back at the await, and the rest of
 ## it runs after spec() has returned: what it adds then fails the test and
 ## never runs.

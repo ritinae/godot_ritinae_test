@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A test that makes no checks fails: it has proven nothing.
 
 

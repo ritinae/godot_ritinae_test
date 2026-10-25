@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## Hooks don't count as steps: a test with hooks but no steps fails, without
 ## running the hooks.
 

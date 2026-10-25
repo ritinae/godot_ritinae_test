@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## An assertion that never reaches an expect call fails the step or hook it was
 ## made in, saying what it saw. The parts of an all_of() count as checked; the
 ## all_of() itself doesn't until it's expected.

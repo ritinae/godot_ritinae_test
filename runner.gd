@@ -4,7 +4,7 @@ extends SceneTree
 ##
 ##   godot --headless --fixed-fps 60 --script res://addons/ritinae_test/runner.gd -- res://test/gameplay/test_economy.gd
 ##
-## The test is a Node extending base_test.gd, with run(), create_scene(),
+## The test is an RTTest (src/base_test.gd), with run(), create_scene(),
 ## max_seconds and passed/failed counts. The runner only puts the scene from
 ## create_scene() (if any) around it.
 ##
@@ -37,7 +37,7 @@ func _initialize() -> void:
 		return
 	_test = script.new() as Node
 	if not _test or not _test.has_method("run"):
-		_abort("%s is not a test; it should extend base_test.gd" % args[0])
+		_abort("%s is not a test; it should extend RTTest" % args[0])
 		return
 	var scene: Node = _test.create_scene()
 	if scene:

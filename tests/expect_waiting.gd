@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## expect_within() passes on the first frame a check holds and fails if it
 ## never does in time; expect_throughout() fails on the first frame a check
 ## stops holding. A check that acts does so once, however long it's polled.

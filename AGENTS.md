@@ -20,17 +20,20 @@ Set `GODOT` to use a different Godot binary.
 
 ## Files
 
+The framework's scripts are in `src/`; the runner and the editor plugin are in
+the addon root.
+
 - `runner.gd`: a `SceneTree` script that runs one test file. It adds the
   scene from the test's `create_scene()` and the test, awaits `run()`, fails
   the test as hung after `max_seconds`, and exits with 0 when every check
   passed and at least one did.
-- `base_test.gd`: the base every test extends through a project's base test.
-  It collects the `describe`/`it`/hook tree from `spec()` and runs it, and
-  holds `check()`, the `expect` calls,
-  waiting and the pass/fail counts.
-- `page.gd` (`RTPage`), `assertion.gd` (`RTAssertion`) and `expect.gd`
-  (`RTExpect`): pages make assertions with `_assert()`. `RTExpect` checks them
-  and tracks the ones that never reach an expect call.
+- `src/base_test.gd` (`RTTest`): the base every test extends through a
+  project's base test. It collects the `describe`/`it`/hook tree from
+  `spec()` and runs it, and holds `check()`, the `expect` calls, waiting and
+  the pass/fail counts.
+- `src/page.gd` (`RTPage`), `src/assertion.gd` (`RTAssertion`) and
+  `src/expect.gd` (`RTExpect`): pages make assertions with `_assert()`.
+  `RTExpect` checks them and tracks the ones that never reach an expect call.
 - `run_tests.sh`: runs every `test_*.gd` in a tests folder and summarises.
   `import.sh` (sourced by both scripts) imports the project first when the
   import cache is missing or stale.

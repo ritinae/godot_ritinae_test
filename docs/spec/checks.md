@@ -66,11 +66,11 @@ put together (scene wiring, components, data) and for `run()` tests.
 
 ## Code
 
-- `expect.gd` (`RTExpect`): the expect calls, `all_of()`, tracking unchecked
+- `src/expect.gd` (`RTExpect`): the expect calls, `all_of()`, tracking unchecked
   assertions
-- `assertion.gd` (`RTAssertion`): an assertion and its probe
-- `page.gd` (`RTPage`): the base of a page, `_assert()`
-- `base_test.gd`: `check()`, `expect()`, `expect_within()`,
+- `src/assertion.gd` (`RTAssertion`): an assertion and its probe
+- `src/page.gd` (`RTPage`): the base of a page, `_assert()`
+- `src/base_test.gd` (`RTTest`): `check()`, `expect()`, `expect_within()`,
   `expect_throughout()`, `all_of()`, `each_of()`
 
 ## Tests

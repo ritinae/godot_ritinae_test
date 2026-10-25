@@ -2,9 +2,10 @@
 
 Tests are headless Godot runs. Each test is a `test_*.gd` file in a project's
 tests folder (`test/` by default, subfolders included). It extends the
-project's own base test, which extends this framework's `base_test.gd` and
-adds what the project's tests need: the scene they run in (`create_scene()`),
-references into it, helpers and pages.
+project's own base test, which extends this framework's `RTTest`
+(`src/base_test.gd`, so `extends RTTest`) and adds what the project's tests
+need: the scene they run in (`create_scene()`), references into it, helpers
+and pages.
 
 ## Running tests
 

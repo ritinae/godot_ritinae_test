@@ -84,7 +84,7 @@ Prefer `spec()`.
 
 ## Code
 
-- `base_test.gd`: `spec()`, `describe()`, `it()`, the hooks, `run()`,
+- `src/base_test.gd` (`RTTest`): `spec()`, `describe()`, `it()`, the hooks, `run()`,
   waiting
 
 ## Tests

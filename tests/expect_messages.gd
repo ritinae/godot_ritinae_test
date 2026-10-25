@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## expect() reports the test's intent, and what was seen when the check didn't
 ## hold. all_of() is one check of several and reports the first part that
 ## fails.

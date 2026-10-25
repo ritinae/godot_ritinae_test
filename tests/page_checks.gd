@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A page's should_ checks work with every expect call and all_of(), and are
 ## tracked like any other assertion.
 

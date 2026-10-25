@@ -1,3 +1,4 @@
+class_name RTTest
 extends Node
 ## Base for headless tests: describe/it steps, checks, pass/fail counts and
 ## waiting. A project's own base test extends this with what its tests need (the

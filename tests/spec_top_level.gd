@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## spec()'s top level works like a describe body without a name: it may hold
 ## hooks, steps and several groups, and adds nothing to their paths.
 

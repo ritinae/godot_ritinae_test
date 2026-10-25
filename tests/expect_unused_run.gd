@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## A test that overrides run() also fails for an assertion it never checks,
 ## when it finishes.
 

@@ -1,4 +1,4 @@
-extends "res://addons/ritinae_test/base_test.gd"
+extends RTTest
 ## Hooks run in order around the steps: each hook checks in under its own name,
 ## so the output shows when it ran. Some hooks wait, and what follows waits for
 ## them.
