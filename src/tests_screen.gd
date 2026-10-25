@@ -2,22 +2,33 @@
 extends VBoxContainer
 ## The editor's Tests main screen: lists the project's tests and runs them one
 ## at a time, each in its own headless process, showing each test's result and
-## the output of the selected one. How tests are run:
+## the output of the selected one. Tests are listed in a tree of their folders. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
 const TestRun := preload("res://addons/ritinae_test/src/test_run.gd")
 const TestSuite := preload("res://addons/ritinae_test/src/test_suite.gd")
 
+## The widest status the status column fits without clipping.
+const WIDEST_STATUS := "FAIL (999 passed, 999 failed)"
+## The widest the name column starts, before the editor scale.
+const MAX_NAME_WIDTH := 480
+## The narrowest the name column can be dragged, before the editor scale.
+const MIN_NAME_WIDTH := 120
+
 var _run_button := Button.new()
 var _stop_button := Button.new()
 var _filter := LineEdit.new()
 var _status := Label.new()
+var _split := HSplitContainer.new()
 var _tree := Tree.new()
 var _output := RichTextLabel.new()
 
 var _dir := ""
 ## The TreeItem of each listed test, by name.
 var _items := { }
+## The TreeItem of each folder of the listed tests, by path under the tests
+## folder.
+var _folders := { }
 ## The lines, summary and pass of each test that has run, by name.
 var _results := { }
 var _queue := PackedStringArray()
@@ -27,6 +38,8 @@ var _failed := PackedStringArray()
 ## Whether the output follows the running test; it stops when a test is picked.
 var _following := false
 var _selecting := false
+## Whether the list's width was dragged; until then it fits the names.
+var _width_dragged := false
 
 
 func _ready() -> void:
@@ -53,22 +66,22 @@ func _ready() -> void:
 	toolbar.add_child(_status)
 
 	var scale := EditorInterface.get_editor_scale()
-	var split := HSplitContainer.new()
-	split.size_flags_vertical = SIZE_EXPAND_FILL
-	add_child(split)
+	_split.size_flags_vertical = SIZE_EXPAND_FILL
+	_split.dragged.connect(func(_offset: int): _width_dragged = true)
+	add_child(_split)
 	_tree.columns = 2
 	_tree.hide_root = true
 	_tree.select_mode = Tree.SELECT_ROW
-	_tree.custom_minimum_size.x = 360 * scale
 	_tree.set_column_expand(1, false)
-	_tree.set_column_custom_minimum_width(1, roundi(200 * scale))
 	var background := StyleBoxFlat.new()
 	background.bg_color = get_theme_color("dark_color_1", "Editor")
 	background.set_content_margin_all(4 * scale)
 	_tree.add_theme_stylebox_override("panel", background)
 	_tree.item_selected.connect(_on_item_selected)
-	_tree.item_activated.connect(func(): _start([_tree.get_selected().get_metadata(0)]))
-	split.add_child(_tree)
+	_tree.item_activated.connect(func(): _start(_names_under(_tree.get_selected())))
+	_split.add_child(_tree)
+	_tree.set_column_custom_minimum_width(1, _status_width())
+	_tree.custom_minimum_size.x = _tree_width(MIN_NAME_WIDTH * scale)
 	_output.size_flags_horizontal = SIZE_EXPAND_FILL
 	_output.selection_enabled = true
 	_output.context_menu_enabled = true
@@ -78,7 +91,7 @@ func _ready() -> void:
 		"normal_font_size",
 		get_theme_font_size("output_source_size", "EditorFonts"),
 	)
-	split.add_child(_output)
+	_split.add_child(_output)
 
 	visibility_changed.connect(func():
 		if visible:
@@ -96,6 +109,7 @@ func refresh() -> void:
 	_dir = TestSuite.tests_dir()
 	_tree.clear()
 	_items.clear()
+	_folders.clear()
 	var root := _tree.create_item()
 	if not DirAccess.dir_exists_absolute(_dir):
 		_status.text = "No tests folder %s" % _dir
@@ -103,14 +117,15 @@ func refresh() -> void:
 		return
 	var names := TestSuite.find(_dir, _filters())
 	for name in names:
-		var item := root.create_child()
-		item.set_text(0, name)
+		var item := _folder(name.get_base_dir(), root).create_child()
+		item.set_text(0, name.get_file())
 		item.set_metadata(0, name)
 		_items[name] = item
 		if name in _results:
 			_show_result(name)
 		else:
 			_show_not_run(name)
+	_fit_width()
 	_run_button.disabled = names.is_empty()
 	if names.is_empty():
 		_status.text = "No tests matched."
@@ -203,11 +218,87 @@ func _finish() -> void:
 			_select(_failed[0])
 
 
+## The item of the folder at path under the tests folder, made with its parent
+## folders when missing. The empty path is the root.
+func _folder(path: String, root: TreeItem) -> TreeItem:
+	if path.is_empty():
+		return root
+	if path in _folders:
+		return _folders[path]
+	var item := _folder(path.get_base_dir(), root).create_child()
+	item.set_text(0, path.get_file())
+	item.set_icon(0, get_theme_icon("Folder", "EditorIcons"))
+	item.set_metadata(0, "")
+	_folders[path] = item
+	return item
+
+
+## The names of the test at item, or of the tests under the folder at item.
+func _names_under(item: TreeItem) -> Array:
+	var name: String = item.get_metadata(0)
+	if not name.is_empty():
+		return [name]
+	var names := []
+	for child in item.get_children():
+		names.append_array(_names_under(child))
+	return names
+
+
+## Widens the list to fit its widest name, up to MAX_NAME_WIDTH, unless its
+## width was dragged.
+func _fit_width() -> void:
+	if _width_dragged:
+		return
+	var scale := EditorInterface.get_editor_scale()
+	var name_width := 0.0
+	for item: TreeItem in _items.values() + _folders.values():
+		name_width = maxf(name_width, _cell_width(item, 0))
+	name_width = clampf(name_width, MIN_NAME_WIDTH * scale, MAX_NAME_WIDTH * scale)
+	_split.split_offset = roundi(_tree_width(name_width) - _tree.custom_minimum_size.x)
+
+
+## The width of the status column: an icon and WIDEST_STATUS.
+func _status_width() -> int:
+	var icon := get_theme_icon("StatusError", "EditorIcons")
+	return ceili(_content_width(WIDEST_STATUS, icon))
+
+
+## The width the cell's text and icon take, with its indent.
+func _cell_width(item: TreeItem, column: int) -> float:
+	var depth := 0
+	var parent := item.get_parent()
+	while parent:
+		depth += 1
+		parent = parent.get_parent()
+	var indent := depth * _tree.get_theme_constant("item_margin")
+	return indent + _content_width(item.get_text(column), item.get_icon(column))
+
+
+func _content_width(text: String, icon: Texture2D) -> float:
+	var font := _tree.get_theme_font("font")
+	var font_size := _tree.get_theme_font_size("font_size")
+	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	if icon:
+		width += icon.get_width() + _tree.get_theme_constant("h_separation")
+	width += _tree.get_theme_constant("inner_item_margin_left")
+	width += _tree.get_theme_constant("inner_item_margin_right")
+	return width + _tree.get_theme_constant("h_separation")
+
+
+## The width of the list with a name column name_width wide, the status column,
+## the margins and room for the scroll bar.
+func _tree_width(name_width: float) -> float:
+	var scale := EditorInterface.get_editor_scale()
+	var margins := _tree.get_theme_stylebox("panel").get_minimum_size().x
+	return name_width + _status_width() + margins + 16 * scale
+
+
 func _show_result(name: String) -> void:
 	var result: Dictionary = _results[name]
 	var item: TreeItem = _items[name]
 	var verdict := "PASS" if result.passed else "FAIL"
 	item.set_text(1, "%s (%s)" % [verdict, result.summary])
+	item.set_tooltip_text(1, item.get_text(1))
 	item.set_icon(
 		1,
 		get_theme_icon("StatusSuccess" if result.passed else "StatusError", "EditorIcons"),
@@ -221,6 +312,7 @@ func _show_result(name: String) -> void:
 func _show_not_run(name: String) -> void:
 	var item: TreeItem = _items[name]
 	item.set_text(1, "Not yet run")
+	item.set_tooltip_text(1, "")
 	item.set_icon(1, null)
 	item.set_custom_color(1, get_theme_color("font_disabled_color", "Editor"))
 
@@ -241,6 +333,7 @@ func _on_item_selected() -> void:
 
 func _select(name: String) -> void:
 	_selecting = true
+	_items[name].uncollapse_tree()
 	_items[name].select(0)
 	_tree.scroll_to_item(_items[name])
 	_selecting = false

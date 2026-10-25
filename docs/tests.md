@@ -10,8 +10,9 @@ and pages.
 ## Running tests
 
 In the editor, enable the plugin (Project Settings → Plugins) and open the
-**Tests** main screen, next to 2D, 3D and Script. It lists the tests and runs
-the listed ones with **Run**, or one with a double-click. The filter keeps the
+**Tests** main screen, next to 2D, 3D and Script. It lists the tests in a tree
+of their folders and runs the listed ones with **Run**, or one test or folder
+with a double-click. The filter keeps the
 tests whose name contains any of its words. Each test shows PASS or FAIL with
 its counts, and selecting one shows its output. **Stop** stops the running
 test and the ones waiting. When the editor saves before running the project

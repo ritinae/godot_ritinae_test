@@ -20,6 +20,14 @@ folder.
 - The screen lists every `test_*.gd` under the tests folder, subfolders
   included, sorted by path and named by its path under the folder without
   `.gd`, as `run_tests.sh` does.
+- The list is a tree: each subfolder is an item with a folder icon, holding
+  its subfolders and tests, and each test shows its file name without `.gd`.
+- The list has a name column and a status column. The status column fits an
+  icon and `FAIL (999 passed, 999 failed)`; a longer status is clipped and
+  shown whole in its tooltip. The list starts as wide as its widest name,
+  indent and icon included, but at most 480 pixels for the names (times the
+  editor scale), and keeps fitting the names when refreshed until its width
+  is dragged.
 - The filter keeps the tests whose name contains any of its
   space-separated words.
 - The list is refreshed when the screen is shown, when the filter changes,
@@ -33,7 +41,8 @@ folder.
 ## Running tests
 
 - **Run** (or Enter in the filter) runs the listed tests in order; a
-  double-click on a test runs only that one. The filter can't be changed
+  double-click on a test runs only that one, and on a folder the listed
+  tests under it. The filter can't be changed
   while tests run.
 - When the editor setting `run/auto_save/save_before_running` is on, all
   scenes and scripts are saved first.
@@ -61,7 +70,8 @@ folder.
 - `PASS` lines are green, `FAIL`, `SCRIPT ERROR` and `ERROR:` lines red,
   and `STEP` lines in the accent colour.
 - During a run the selection follows the running test, and ends on the
-  first failed test, until a test is selected by hand.
+  first failed test, until a test is selected by hand. Folders of a selected
+  test are expanded. Selecting a folder shows no output.
 
 ## Controls
 
@@ -69,6 +79,7 @@ folder.
 |---|---|
 | Run, or Enter in the filter | Run the listed tests |
 | Double-click a test | Run that test |
+| Double-click a folder | Run the listed tests under it |
 | Stop | Stop the running test and the ones waiting |
 | Filter | List the tests whose name contains any of its words |
 | Select a test | Show its output |
