@@ -52,15 +52,20 @@ func _ready() -> void:
 	toolbar.add_child(_filter)
 	toolbar.add_child(_status)
 
+	var scale := EditorInterface.get_editor_scale()
 	var split := HSplitContainer.new()
 	split.size_flags_vertical = SIZE_EXPAND_FILL
 	add_child(split)
 	_tree.columns = 2
 	_tree.hide_root = true
 	_tree.select_mode = Tree.SELECT_ROW
-	_tree.custom_minimum_size.x = 360
+	_tree.custom_minimum_size.x = 360 * scale
 	_tree.set_column_expand(1, false)
-	_tree.set_column_custom_minimum_width(1, 200)
+	_tree.set_column_custom_minimum_width(1, roundi(200 * scale))
+	var background := StyleBoxFlat.new()
+	background.bg_color = get_theme_color("dark_color_1", "Editor")
+	background.set_content_margin_all(4 * scale)
+	_tree.add_theme_stylebox_override("panel", background)
 	_tree.item_selected.connect(_on_item_selected)
 	_tree.item_activated.connect(func(): _start([_tree.get_selected().get_metadata(0)]))
 	split.add_child(_tree)
@@ -104,6 +109,8 @@ func refresh() -> void:
 		_items[name] = item
 		if name in _results:
 			_show_result(name)
+		else:
+			_show_not_run(name)
 	_run_button.disabled = names.is_empty()
 	if names.is_empty():
 		_status.text = "No tests matched."
@@ -136,8 +143,7 @@ func _start(names: Array) -> void:
 	_following = true
 	for name in names:
 		_results.erase(name)
-		_items[name].set_text(1, "")
-		_items[name].set_icon(1, null)
+		_show_not_run(name)
 	_run_button.disabled = true
 	_stop_button.disabled = false
 	_filter.editable = false
@@ -210,6 +216,13 @@ func _show_result(name: String) -> void:
 		1,
 		get_theme_color("success_color" if result.passed else "error_color", "Editor"),
 	)
+
+
+func _show_not_run(name: String) -> void:
+	var item: TreeItem = _items[name]
+	item.set_text(1, "Not yet run")
+	item.set_icon(1, null)
+	item.set_custom_color(1, get_theme_color("font_disabled_color", "Editor"))
 
 
 func _on_item_selected() -> void:

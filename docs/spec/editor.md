@@ -25,6 +25,8 @@ folder.
 - The list is refreshed when the screen is shown, when the filter changes,
   when the project's files change and when a project setting changes, but
   not while tests are running. Results of earlier runs stay on their tests.
+- A test that hasn't run shows `Not yet run`, dimmed, as do the tests
+  skipped by Stop. The list has a background darker than the editor's.
 - The status shows `<N> tests in <folder>`, `No tests matched.` or
   `No tests folder <folder>`. Run is disabled when nothing is listed.
 
