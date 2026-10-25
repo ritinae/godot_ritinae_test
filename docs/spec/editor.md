@@ -22,9 +22,10 @@ folder.
   `.gd`, as `run_tests.sh` does.
 - The list is a tree: each subfolder is an item with a folder icon, holding
   its subfolders and tests, and each test shows its file name without `.gd`.
-- The list has a name column and a status column. The status column fits an
-  icon and `FAIL (999 passed, 999 failed)`; a longer status is clipped and
-  shown whole in its tooltip. The list starts as wide as its widest name,
+- The list has a name column and a status column. The status column starts
+  out fitting an icon and `FAIL (99 passed, 99 failed)`, and widens, with
+  the list, to fit any longer status shown, such as a timeout; it doesn't
+  narrow again. A status also shows whole in its tooltip. The list starts as wide as its widest name,
   indent and icon included, but at most 480 pixels for the names (times the
   editor scale), and keeps fitting the names when refreshed until its width
   is dragged.

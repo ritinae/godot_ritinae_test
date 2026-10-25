@@ -8,8 +8,8 @@ extends VBoxContainer
 const TestRun := preload("res://addons/ritinae_test/src/test_run.gd")
 const TestSuite := preload("res://addons/ritinae_test/src/test_suite.gd")
 
-## The widest status the status column fits without clipping.
-const WIDEST_STATUS := "FAIL (999 passed, 999 failed)"
+## The status the status column starts out fitting; it widens for longer ones.
+const TYPICAL_STATUS := "FAIL (99 passed, 99 failed)"
 ## The widest the name column starts, before the editor scale.
 const MAX_NAME_WIDTH := 480
 ## The narrowest the name column can be dragged, before the editor scale.
@@ -40,6 +40,8 @@ var _following := false
 var _selecting := false
 ## Whether the list's width was dragged; until then it fits the names.
 var _width_dragged := false
+## The width of the status column, which fits the widest status shown so far.
+var _status_width := 0
 
 
 func _ready() -> void:
@@ -80,8 +82,7 @@ func _ready() -> void:
 	_tree.item_selected.connect(_on_item_selected)
 	_tree.item_activated.connect(func(): _start(_names_under(_tree.get_selected())))
 	_split.add_child(_tree)
-	_tree.set_column_custom_minimum_width(1, _status_width())
-	_tree.custom_minimum_size.x = _tree_width(MIN_NAME_WIDTH * scale)
+	_fit_status(TYPICAL_STATUS, get_theme_icon("StatusError", "EditorIcons"))
 	_output.size_flags_horizontal = SIZE_EXPAND_FILL
 	_output.selection_enabled = true
 	_output.context_menu_enabled = true
@@ -257,10 +258,16 @@ func _fit_width() -> void:
 	_split.split_offset = roundi(_tree_width(name_width) - _tree.custom_minimum_size.x)
 
 
-## The width of the status column: an icon and WIDEST_STATUS.
-func _status_width() -> int:
-	var icon := get_theme_icon("StatusError", "EditorIcons")
-	return ceili(_content_width(WIDEST_STATUS, icon))
+## Widens the status column, and the list with it, to fit a status with text
+## and icon.
+func _fit_status(text: String, icon: Texture2D) -> void:
+	var width := ceili(_content_width(text, icon))
+	if width <= _status_width:
+		return
+	_status_width = width
+	_tree.set_column_custom_minimum_width(1, width)
+	_tree.custom_minimum_size.x = _tree_width(MIN_NAME_WIDTH * EditorInterface.get_editor_scale())
+	_fit_width()
 
 
 ## The width the cell's text and icon take, with its indent.
@@ -290,7 +297,7 @@ func _content_width(text: String, icon: Texture2D) -> float:
 func _tree_width(name_width: float) -> float:
 	var scale := EditorInterface.get_editor_scale()
 	var margins := _tree.get_theme_stylebox("panel").get_minimum_size().x
-	return name_width + _status_width() + margins + 16 * scale
+	return name_width + _status_width + margins + 16 * scale
 
 
 func _show_result(name: String) -> void:
@@ -307,6 +314,7 @@ func _show_result(name: String) -> void:
 		1,
 		get_theme_color("success_color" if result.passed else "error_color", "Editor"),
 	)
+	_fit_status(item.get_text(1), item.get_icon(1))
 
 
 func _show_not_run(name: String) -> void:
