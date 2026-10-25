@@ -255,7 +255,7 @@ func _fit_width() -> void:
 	for item: TreeItem in _items.values() + _folders.values():
 		name_width = maxf(name_width, _cell_width(item, 0))
 	name_width = clampf(name_width, MIN_NAME_WIDTH * scale, MAX_NAME_WIDTH * scale)
-	_split.split_offset = roundi(_tree_width(name_width) - _tree.custom_minimum_size.x)
+	_split.split_offset = roundi(_tree_width(name_width))
 
 
 ## Widens the status column, and the list with it, to fit a status with text
@@ -264,10 +264,14 @@ func _fit_status(text: String, icon: Texture2D) -> void:
 	var width := ceili(_content_width(text, icon))
 	if width <= _status_width:
 		return
+	var growth := width - _status_width
 	_status_width = width
 	_tree.set_column_custom_minimum_width(1, width)
 	_tree.custom_minimum_size.x = _tree_width(MIN_NAME_WIDTH * EditorInterface.get_editor_scale())
-	_fit_width()
+	if _width_dragged:
+		_split.split_offset += growth
+	else:
+		_fit_width()
 
 
 ## The width the cell's text and icon take, with its indent.
