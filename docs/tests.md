@@ -9,13 +9,28 @@ and pages.
 
 ## Running tests
 
+In the editor, enable the plugin (Project Settings → Plugins) and open the
+**Tests** main screen, next to 2D, 3D and Script. It lists the tests and runs
+the listed ones with **Run**, or one with a double-click. The filter keeps the
+tests whose name contains any of its words. Each test shows PASS or FAIL with
+its counts, and selecting one shows its output. **Stop** stops the running
+test and the ones waiting. When the editor saves before running the project
+(Editor Settings → Run → Auto Save), the screen saves scenes and scripts
+first, since tests run from the files on disk.
+
+The tests folder is `test/` unless the project setting **Ritinae Test → Run →
+Tests Dir** (`ritinae_test/run/tests_dir`) names another. Both the Tests
+screen and `run_tests.sh` use it, and `--tests` overrides it.
+
+From a shell:
+
 ```sh
 addons/ritinae_test/run_tests.sh                 # all tests in test/
 addons/ritinae_test/run_tests.sh economy         # tests whose name contains "economy"
 addons/ritinae_test/run_tests.sh gameplay/camp   # tests in a folder (and its subfolders)
 addons/ritinae_test/run_tests.sh camp economy    # tests whose name contains "camp" or "economy"
 addons/ritinae_test/run_tests.sh -v              # also print every step, check and info line
-addons/ritinae_test/run_tests.sh --tests dir     # look for tests in dir instead of test/
+addons/ritinae_test/run_tests.sh --tests dir     # look for tests in dir instead of the tests folder
 ```
 
 Set `GODOT` to use a different Godot binary. To run one test file without

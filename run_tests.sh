@@ -10,6 +10,9 @@
 #   run_tests.sh -v                also print every step, check and info line
 #   run_tests.sh --tests dir       look for tests in dir instead of test/
 #
+# The tests folder is test/ unless the project setting ritinae_test/run/tests_dir
+# (Project Settings > Ritinae Test > Run > Tests Dir) or --tests names another.
+#
 # The framework's own tests are in tests/ (tests/run_self_tests.sh).
 #
 # Set GODOT to use a different Godot binary (default: godot).
@@ -18,7 +21,22 @@ cd "$(dirname "$0")/../.."
 
 godot=${GODOT:-godot}
 runner=res://addons/ritinae_test/runner.gd
-tests=test
+
+# Prints a project setting's value as project.godot holds it (a string keeps its
+# quotes), or nothing when the setting isn't there, as at its default.
+project_setting() {
+	local section=${1%%/*} key=${1#*/}
+	awk -v section="[$section]" -v key="$key=" '
+		/^\[/ { in_section = ($0 == section) }
+		in_section && index($0, key) == 1 { print substr($0, length(key) + 1); exit }
+	' project.godot
+}
+
+tests=$(project_setting ritinae_test/run/tests_dir)
+tests=${tests#\"}
+tests=${tests%\"}
+tests=${tests#res://}
+tests=${tests:-test}
 verbose=0
 filters=()
 while [[ $# -gt 0 ]]; do

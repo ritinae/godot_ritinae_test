@@ -1,0 +1,20 @@
+exit 0
+STEP finding tests > finds every test_*.gd under the folder, sorted by path
+PASS the tests are found by name
+STEP finding tests > keeps the tests whose name contains any of the filters
+PASS a filter keeps the matching tests
+PASS a folder filter keeps the tests in it
+PASS several filters keep the tests matching any of them, once
+PASS a filter matching nothing keeps nothing
+STEP finding tests > finds nothing in a missing folder
+PASS a missing folder has no tests
+STEP finding tests > gives a test's path by its name
+PASS the path is the folder, the name and .gd
+STEP the tests folder setting > is res://test when not set
+PASS the default folder is res://test
+STEP the tests folder setting > is a res:// path without a trailing slash
+PASS a trailing slash is dropped
+PASS a folder without res:// is under the project
+PASS an empty folder is the default
+STEP the tests folder setting (after all)
+RESULT: 11 passed, 0 failed

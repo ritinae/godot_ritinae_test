@@ -8,8 +8,11 @@ scripts parse.
 ## Finding tests
 
 - `run_tests.sh` runs every `test_*.gd` under the tests folder, subfolders
-  included, sorted by path. The folder is `test/` unless `--tests <dir>` is
-  given; a trailing `/` is ignored.
+  included, sorted by path. The folder is `--tests <dir>` when given, else
+  the project setting `ritinae_test/run/tests_dir`, else `test/`. The
+  setting is read from `project.godot`, with or without `res://`; a
+  trailing `/` is ignored either way. The Tests screen (see the editor
+  spec) uses the same setting.
 - A test's name is its path under that folder without `.gd`
   (`gameplay/test_economy`).
 - A filter argument keeps the tests whose name contains it, so `economy`
@@ -114,12 +117,15 @@ The runner prints, in order:
 | `run_tests.sh <filter>...` | Run the tests whose name contains any of the filters |
 | `run_tests.sh -v` | Also print every step, check and info line |
 | `run_tests.sh --tests <dir>` | Look for tests in `<dir>` |
+| `ritinae_test/run/tests_dir` | The tests folder, `res://test` by default |
 | `tests/run_self_tests.sh [filter]` | Run the framework's self-tests |
 | `GODOT=<binary>` | Use a different Godot binary in either script |
 
 ## Code
 
-- `run_tests.sh`: finding, filtering and running tests, the summary
+- `run_tests.sh`: finding, filtering and running tests, the summary, reading
+  the tests folder setting
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder setting
 - `import.sh`: importing when the cache is missing or stale
 - `runner.gd`: running one test, hung tests, `RESULT` and the exit code
 - `tests/run_self_tests.sh`: the self-tests against their `.expected`
@@ -129,3 +135,4 @@ The runner prints, in order:
 - `tests/run_passing.gd`, `tests/run_failing.gd`
 - `tests/run_no_checks.gd`
 - `tests/run_hang.gd`
+- `tests/suite_find.gd`: the tests folder setting

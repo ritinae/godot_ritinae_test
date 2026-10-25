@@ -1,0 +1,88 @@
+# The Tests screen
+
+The editor plugin adds a **Tests** main screen, next to 2D, 3D and Script,
+that lists the project's tests and runs them. Each test runs in its own
+headless Godot process, one at a time, and is judged as `run_tests.sh`
+judges it. The plugin also adds the project setting that names the tests
+folder.
+
+## The tests folder
+
+- The project setting `ritinae_test/run/tests_dir` (Project Settings →
+  Ritinae Test → Run → Tests Dir) names the folder, `res://test` by
+  default. The plugin adds it, with a folder picker, while it is enabled.
+- A folder without `res://` is under the project root, a trailing `/` is
+  dropped, and an empty one is the default.
+- `run_tests.sh` reads the same setting (see the running spec).
+
+## Listing tests
+
+- The screen lists every `test_*.gd` under the tests folder, subfolders
+  included, sorted by path and named by its path under the folder without
+  `.gd`, as `run_tests.sh` does.
+- The filter keeps the tests whose name contains any of its
+  space-separated words.
+- The list is refreshed when the screen is shown, when the filter changes,
+  when the project's files change and when a project setting changes, but
+  not while tests are running. Results of earlier runs stay on their tests.
+- The status shows `<N> tests in <folder>`, `No tests matched.` or
+  `No tests folder <folder>`. Run is disabled when nothing is listed.
+
+## Running tests
+
+- **Run** (or Enter in the filter) runs the listed tests in order; a
+  double-click on a test runs only that one. The filter can't be changed
+  while tests run.
+- When the editor setting `run/auto_save/save_before_running` is on, all
+  scenes and scripts are saved first.
+- A test runs as `godot --headless --fixed-fps 60 --path <project> --script
+  res://addons/ritinae_test/runner.gd -- <test>`, with the editor's own
+  Godot binary.
+- While a test runs, it shows `running…` and the status
+  `Running <i> of <N>: <name>`.
+- A test passes when its process exits with 0 and prints no `SCRIPT ERROR`.
+  It then shows `PASS (<counts>)`, else `FAIL (<counts>)`, where the counts
+  are its `RESULT` line (`3 passed, 1 failed`), or `exit code <N>`,
+  `stopped` or `timed out after 300 real seconds` when it has none.
+- A test still running after 300 real seconds is killed and fails as
+  timed out.
+- **Stop** kills the running test, which fails as stopped, and skips the
+  ones waiting.
+- After the run the status is `All <N> tests passed.` or
+  `<K> of <N> tests failed.`.
+
+## Output
+
+- Selecting a test shows its output: the lines it printed, stdout and
+  stderr alike, as they arrive while it runs. Godot's version line and
+  empty lines are left out.
+- `PASS` lines are green, `FAIL`, `SCRIPT ERROR` and `ERROR:` lines red,
+  and `STEP` lines in the accent colour.
+- During a run the selection follows the running test, and ends on the
+  first failed test, until a test is selected by hand.
+
+## Controls
+
+| Control | Action |
+|---|---|
+| Run, or Enter in the filter | Run the listed tests |
+| Double-click a test | Run that test |
+| Stop | Stop the running test and the ones waiting |
+| Filter | List the tests whose name contains any of its words |
+| Select a test | Show its output |
+
+## Code
+
+- `test_plugin.gd`: the main screen and the project setting
+- `src/tests_screen.gd`: the screen
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder, finding and
+  filtering tests
+- `src/test_run.gd` (`RTTestRun`): running one test in its own process,
+  timing out, stopping, judging it
+
+## Tests
+
+- `tests/suite_find.gd`: finding and filtering tests, the setting
+- `tests/suite_run.gd`: running, judging, stopping and timing out, against
+  the tests in `tests/fixtures/suite/`
+- The screen itself has no self-test; it needs the editor.

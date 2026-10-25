@@ -1,0 +1,28 @@
+exit 0
+STEP a finished run > passes when the test passes
+PASS the run passed
+PASS the summary is the test's counts
+PASS the test's checks are among its lines
+PASS the exit code is 0
+STEP a finished run > fails when the test fails
+PASS the run failed
+PASS the summary is the test's counts
+PASS the failing check is among its lines
+STEP a finished run > fails on a script error, though the test's checks passed
+PASS the exit code is 0
+PASS the run failed
+PASS the script error is among its lines
+STEP a finished run > fails with the exit code when the test doesn't load
+PASS the run failed
+PASS the summary is the exit code
+STEP a finished run > emits each line it collects
+PASS every line was emitted, in order
+STEP a run that doesn't finish > fails as stopped when stopped
+PASS the run is running
+PASS the run is no longer running
+PASS the run failed
+PASS the summary says it was stopped
+STEP a run that doesn't finish > fails as timed out after its timeout
+PASS the run failed
+PASS the summary says it timed out
+RESULT: 19 passed, 0 failed

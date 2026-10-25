@@ -37,9 +37,15 @@ the addon root.
 - `run_tests.sh`: runs every `test_*.gd` in a tests folder and summarises.
   `import.sh` (sourced by both scripts) imports the project first when the
   import cache is missing or stale.
-- `plugin.cfg` and `test_plugin.gd`: an empty editor plugin that lists the
-  framework in Project Settings → Plugins.
-- `tests/`: the self-tests.
+- `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests
+  main screen (`src/tests_screen.gd`) and the `ritinae_test/run/tests_dir`
+  project setting.
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder setting, and finding
+  and filtering tests as `run_tests.sh` does.
+- `src/test_run.gd` (`RTTestRun`): runs one test in its own headless process
+  for the Tests screen, and judges it as `run_tests.sh` does.
+- `tests/`: the self-tests. `tests/fixtures/` holds tests the self-tests
+  run as data; they aren't self-tests themselves.
 
 ## Output contract
 
