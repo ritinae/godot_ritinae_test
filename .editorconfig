@@ -1,0 +1,9 @@
+root = true
+
+[*]
+charset = utf-8
+
+[*.gd]
+gdscript_formatter_lambda_inline = always
+gdscript_formatter_lambda_force_wrap_arguments = false
+gdscript_formatter_lambda_inline_prefer_call_line = true
