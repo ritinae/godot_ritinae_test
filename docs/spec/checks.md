@@ -58,7 +58,7 @@ put together (scene wiring, components, data) and for `run()` tests.
 ## Pages
 
 - A page extends `RTPage`, is made with the test (`Page.new(self)`) and
-  reaches it as `t`.
+  reaches it as `t`, an `RTTest`.
 - Checks start with `should_` and return `_assert(...)`. Actions and queries
   are plain methods.
 - A probe doesn't call `should_` checks; those would be tracked and never

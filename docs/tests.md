@@ -136,6 +136,9 @@ A page (`extends RTPage`) wraps something a test acts on or checks, and hides
 how it's built, so the test reads like what it means. When a test needs
 something new, extend a page rather than reaching into nodes from the test.
 
+- A page reaches the test as `t`, typed `RTTest`. To use what a project's
+  base test adds, give that base test a `class_name` and the project's pages
+  a base page holding the test under that type.
 - Checks start with `should_` and return a `RTAssertion` made with
   `_assert()`. Actions (`place()`, `set_wood()`) and queries (`wood_of()`) are
   plain methods.

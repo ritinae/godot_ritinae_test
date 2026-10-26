@@ -5,10 +5,10 @@ extends RefCounted
 ## should_ and return a RTAssertion made with _assert(). How to write pages:
 ## addons/ritinae_test/docs/tests.md.
 
-var t: Node # the running test
+var t: RTTest # the running test
 
 
-func _init(test: Node) -> void:
+func _init(test: RTTest) -> void:
 	t = test
 
 

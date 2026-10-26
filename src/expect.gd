@@ -5,11 +5,11 @@ extends RefCounted
 ## register every assertion they make with track(), and the runner fails any
 ## that never got checked (check_unused()).
 
-var t: Node # the running test
+var t: RTTest # the running test
 var _unused: Array[RTAssertion] = [] # made, not yet checked
 
 
-func _init(test: Node) -> void:
+func _init(test: RTTest) -> void:
 	t = test
 
 
