@@ -1,7 +1,7 @@
 extends RTTest
 ## RTTestSuite finds the test_*.gd files under a folder, subfolders included,
 ## sorted by path and named by their path under it, keeps the ones matching any
-## filter, and reads the tests folder from the project setting.
+## filter, and reads the tests folder and the jobs from the project settings.
 
 const DIR := "res://addons/ritinae_test/tests/fixtures/suite"
 
@@ -62,5 +62,20 @@ func spec() -> void:
 			)
 			ProjectSettings.set_setting(RTTestSuite.TESTS_DIR_SETTING, "")
 			check("an empty folder is the default", RTTestSuite.tests_dir() == "res://test"),
+		),
+	)
+	describe("the jobs setting", func():
+		var saved: Variant = ProjectSettings.get_setting(RTTestSuite.JOBS_SETTING)
+		after_all(func(): ProjectSettings.set_setting(RTTestSuite.JOBS_SETTING, saved))
+
+		it("is one per CPU when not set or 0", func():
+			ProjectSettings.set_setting(RTTestSuite.JOBS_SETTING, null)
+			check("unset is the CPU count", RTTestSuite.jobs() == OS.get_processor_count())
+			ProjectSettings.set_setting(RTTestSuite.JOBS_SETTING, 0)
+			check("0 is the CPU count", RTTestSuite.jobs() == OS.get_processor_count()),
+		)
+		it("is the setting when positive", func():
+			ProjectSettings.set_setting(RTTestSuite.JOBS_SETTING, 3)
+			check("the setting is used", RTTestSuite.jobs() == 3),
 		),
 	)

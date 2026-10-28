@@ -15,13 +15,16 @@ of their folders and runs the listed ones with **Run**, or one test or folder
 with a double-click. The filter keeps the
 tests whose name contains any of its words. Each test shows PASS or FAIL with
 its counts, and selecting one shows its output. **Stop** stops the running
-test and the ones waiting. When the editor saves before running the project
+tests and the ones waiting. When the editor saves before running the project
 (Editor Settings → Run → Auto Save), the screen saves scenes and scripts
 first, since tests run from the files on disk.
 
 The tests folder is `test/` unless the project setting **Ritinae Test → Run →
 Tests Dir** (`ritinae_test/run/tests_dir`) names another. Both the Tests
-screen and `run_tests.sh` use it, and `--tests` overrides it.
+screen and `run_tests.sh` use it, and `--tests` overrides it. Tests run
+several at a time: as many as **Ritinae Test → Run → Jobs**
+(`ritinae_test/run/jobs`) says, or one per CPU when it is 0. `-j` overrides
+it in `run_tests.sh`.
 
 From a shell:
 
@@ -32,7 +35,7 @@ addons/ritinae_test/run_tests.sh gameplay/camp   # tests in a folder (and its su
 addons/ritinae_test/run_tests.sh camp economy    # tests whose name contains "camp" or "economy"
 addons/ritinae_test/run_tests.sh -v              # also print every step, check and info line
 addons/ritinae_test/run_tests.sh --tests dir     # look for tests in dir instead of the tests folder
-addons/ritinae_test/run_tests.sh -j 4            # run at most 4 tests at a time (default: one per CPU)
+addons/ritinae_test/run_tests.sh -j 4            # run at most 4 tests at a time (default: the jobs setting)
 ```
 
 Set `GODOT` to use a different Godot binary. To run one test file without

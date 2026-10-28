@@ -17,4 +17,10 @@ PASS a trailing slash is dropped
 PASS a folder without res:// is under the project
 PASS an empty folder is the default
 STEP the tests folder setting (after all)
-RESULT: 11 passed, 0 failed
+STEP the jobs setting > is one per CPU when not set or 0
+PASS unset is the CPU count
+PASS 0 is the CPU count
+STEP the jobs setting > is the setting when positive
+PASS the setting is used
+STEP the jobs setting (after all)
+RESULT: 14 passed, 0 failed

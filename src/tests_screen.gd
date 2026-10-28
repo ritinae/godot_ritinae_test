@@ -1,10 +1,11 @@
 @tool
 extends VBoxContainer
-## The editor's Tests main screen: lists the project's tests and runs them one
-## at a time, each in its own headless process, showing each test's result and
-## the output of the selected one. Tests are listed in a tree of their folders. How tests are run:
+## The editor's Tests main screen: lists the project's tests and runs them
+## several at a time, each in its own headless process, showing each test's
+## result and the output of the selected one. Tests are listed in a tree of their folders. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
+const TestQueue := preload("res://addons/ritinae_test/src/test_queue.gd")
 const TestRun := preload("res://addons/ritinae_test/src/test_run.gd")
 const TestSuite := preload("res://addons/ritinae_test/src/test_suite.gd")
 
@@ -31,11 +32,14 @@ var _items := { }
 var _folders := { }
 ## The lines, summary and pass of each test that has run, by name.
 var _results := { }
-var _queue := PackedStringArray()
-var _run: TestRun
+var _queue := TestQueue.new()
+## The run of each running test, by name, in the order they started.
+var _runs := { }
 var _run_count := 0
+var _done_count := 0
 var _failed := PackedStringArray()
-## Whether the output follows the running test; it stops when a test is picked.
+## Whether the selection follows the earliest running test; it stops when a
+## test is picked.
 var _following := false
 var _selecting := false
 ## Whether the list's width was dragged; until then it fits the names.
@@ -46,6 +50,10 @@ var _status_width := 0
 
 func _ready() -> void:
 	size_flags_vertical = SIZE_EXPAND_FILL
+	_queue.test_started.connect(_on_test_started)
+	_queue.test_finished.connect(_on_test_finished)
+	_queue.finished.connect(_finish)
+	add_child(_queue)
 
 	var toolbar := HBoxContainer.new()
 	add_child(toolbar)
@@ -104,7 +112,7 @@ func _ready() -> void:
 ## Lists the tests in the tests folder that match the filter, unless tests are
 ## running.
 func refresh() -> void:
-	if _run or not is_node_ready():
+	if _queue.running or not is_node_ready():
 		return
 	var selected := _selected_name()
 	_dir = TestSuite.tests_dir()
@@ -138,11 +146,9 @@ func refresh() -> void:
 		_output.clear()
 
 
-## Stops the running test, which fails as stopped, and the tests waiting to run.
+## Stops the running tests, which fail as stopped, and the tests waiting to run.
 func stop() -> void:
-	_queue.clear()
-	if _run:
-		_run.stop()
+	_queue.stop()
 
 
 func _run_listed() -> void:
@@ -150,11 +156,11 @@ func _run_listed() -> void:
 
 
 func _start(names: Array) -> void:
-	if _run or names.is_empty():
+	if _queue.running or names.is_empty():
 		return
 	_save_before_running()
-	_queue = PackedStringArray(names)
 	_run_count = names.size()
+	_done_count = 0
 	_failed.clear()
 	_following = true
 	for name in names:
@@ -163,7 +169,12 @@ func _start(names: Array) -> void:
 	_run_button.disabled = true
 	_stop_button.disabled = false
 	_filter.editable = false
-	_run_next()
+	var paths := PackedStringArray()
+	for name: String in names:
+		paths.append(TestSuite.path_of(_dir, name))
+	_queue.jobs = TestSuite.jobs()
+	_queue.start(paths)
+	_show_progress()
 
 
 ## Saves scenes and scripts first when the editor saves them before running the
@@ -174,22 +185,14 @@ func _save_before_running() -> void:
 		EditorInterface.get_script_editor().save_all_scripts()
 
 
-func _run_next() -> void:
-	if _queue.is_empty():
-		_finish()
-		return
-	var name := _queue[0]
-	_queue.remove_at(0)
-	_status.text = "Running %d of %d: %s" % [_run_count - _queue.size(), _run_count, name]
+func _on_test_started(path: String, run: TestRun) -> void:
+	var name := _name_of(path)
+	_runs[name] = run
 	_items[name].set_text(1, "running…")
 	_items[name].set_custom_color(1, get_theme_color("font_color", "Editor"))
-	_run = TestRun.new(TestSuite.path_of(_dir, name))
-	_run.line_received.connect(_on_line_received.bind(name))
-	_run.finished.connect(_on_run_finished.bind(name))
-	add_child(_run)
-	if _following:
-		_select(name)
-	_run.start()
+	run.line_received.connect(_on_line_received.bind(name))
+	_show_progress()
+	_follow()
 
 
 func _on_line_received(line: String, name: String) -> void:
@@ -197,14 +200,33 @@ func _on_line_received(line: String, name: String) -> void:
 		_append(line)
 
 
-func _on_run_finished(name: String) -> void:
-	_results[name] = { "lines": _run.lines, "summary": _run.summary(), "passed": _run.passed() }
-	if not _run.passed():
+func _on_test_finished(path: String, run: TestRun) -> void:
+	var name := _name_of(path)
+	_runs.erase(name)
+	_done_count += 1
+	_results[name] = { "lines": run.lines, "summary": run.summary(), "passed": run.passed() }
+	if not run.passed():
 		_failed.append(name)
-	_run.queue_free()
-	_run = null
 	_show_result(name)
-	_run_next()
+	_show_progress()
+	_follow()
+
+
+func _show_progress() -> void:
+	_status.text = "Running %d, %d of %d done" % [_runs.size(), _done_count, _run_count]
+
+
+## Selects the earliest running test while the selection follows the run.
+func _follow() -> void:
+	if not _following or _runs.is_empty():
+		return
+	var name: String = _runs.keys()[0]
+	if name != _selected_name():
+		_select(name)
+
+
+func _name_of(path: String) -> String:
+	return path.trim_prefix(_dir + "/").trim_suffix(".gd")
 
 
 func _finish() -> void:
@@ -215,6 +237,7 @@ func _finish() -> void:
 		_status.text = "All %d tests passed." % _run_count
 	else:
 		_status.text = "%d of %d tests failed." % [_failed.size(), _run_count]
+		_failed.sort()
 		if _following and _failed[0] in _items:
 			_select(_failed[0])
 
@@ -335,8 +358,8 @@ func _on_item_selected() -> void:
 	_output.clear()
 	var name := _selected_name()
 	var lines := PackedStringArray()
-	if _run and _run.path == TestSuite.path_of(_dir, name):
-		lines = _run.lines
+	if name in _runs:
+		lines = _runs[name].lines
 	elif name in _results:
 		lines = _results[name].lines
 	for line in lines:

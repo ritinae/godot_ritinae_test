@@ -13,7 +13,7 @@ Run from anywhere; the scripts work from the project root.
 ```sh
 addons/ritinae_test/tests/run_self_tests.sh         # run the framework's self-tests
 addons/ritinae_test/tests/run_self_tests.sh hooks   # self-tests whose name contains "hooks"
-addons/ritinae_test/run_tests.sh [filter...] [-v] [--tests dir] [-j n]   # run a project's tests (default dir: test/, one test per CPU at a time)
+addons/ritinae_test/run_tests.sh [filter...] [-v] [--tests dir] [-j n]   # run a project's tests (default dir: test/, jobs: the setting, else one per CPU)
 ```
 
 Set `GODOT` to use a different Godot binary.
@@ -40,9 +40,11 @@ the addon root.
   import cache is missing or stale.
 - `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests
   main screen (`src/tests_screen.gd`) and the `ritinae_test/run/tests_dir`
-  project setting.
-- `src/test_suite.gd` (`RTTestSuite`): the tests folder setting, and finding
-  and filtering tests as `run_tests.sh` does.
+  and `ritinae_test/run/jobs` project settings.
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
+  and finding and filtering tests as `run_tests.sh` does.
+- `src/test_queue.gd` (`RTTestQueue`): runs tests several at a time as
+  `RTTestRun`s, for the Tests screen.
 - `src/test_run.gd` (`RTTestRun`): runs one test in its own headless process
   for the Tests screen, and judges it as `run_tests.sh` does.
 - `tests/`: the self-tests. `tests/fixtures/` holds tests the self-tests

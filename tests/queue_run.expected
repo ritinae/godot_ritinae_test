@@ -1,0 +1,21 @@
+exit 0
+STEP a queue > runs every test, at most jobs at a time
+PASS the queue is running
+PASS the queue is no longer running
+PASS every test started
+PASS every test finished
+PASS two tests ran at once
+PASS each run was reported finished
+STEP a queue > runs one test at a time, in order, with one job
+PASS the tests started in order
+PASS the tests finished in order
+PASS one test ran at a time
+STEP a queue > finishes at once with nothing to run
+PASS nothing started
+PASS the queue is no longer running
+STEP a stopped queue > stops the running tests and drops the waiting ones
+PASS two tests are running
+PASS only the running tests started
+PASS the running tests finished as stopped
+PASS no test is running
+RESULT: 15 passed, 0 failed

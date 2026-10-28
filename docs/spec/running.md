@@ -73,8 +73,10 @@ godot --headless --fixed-fps 60 --script res://addons/ritinae_test/runner.gd -- 
 
 ## Running in parallel
 
-- `run_tests.sh` runs up to `-j <n>` (`--jobs <n>`) tests at a time, one per
-  CPU (`nproc`) by default; `-j 1` runs them one by one. A `-j` that isn't a
+- `run_tests.sh` runs up to `-j <n>` (`--jobs <n>`) tests at a time, else
+  the project setting `ritinae_test/run/jobs` when it is above 0, else one
+  per CPU (`nproc`); `-j 1` runs them one by one. The Tests screen uses the
+  same setting (see the editor spec). A `-j` that isn't a
   positive number prints `-j needs a positive number` and exits with 2.
 - Each test's output is kept apart and reported whole, in test order, as
   soon as it and every test before it have finished, so the output is the
@@ -128,7 +130,8 @@ The runner prints, in order:
 | `run_tests.sh <filter>...` | Run the tests whose name contains any of the filters |
 | `run_tests.sh -v` | Also print every step, check and info line |
 | `run_tests.sh --tests <dir>` | Look for tests in `<dir>` |
-| `run_tests.sh -j <n>` | Run at most `<n>` tests at a time (default: one per CPU) |
+| `run_tests.sh -j <n>` | Run at most `<n>` tests at a time (default: the jobs setting, else one per CPU) |
+| `ritinae_test/run/jobs` | How many tests run at a time, 0 for one per CPU |
 | `ritinae_test/run/tests_dir` | The tests folder, `res://test` by default |
 | `tests/run_self_tests.sh [filter]` | Run the framework's self-tests |
 | `GODOT=<binary>` | Use a different Godot binary in either script |
@@ -137,7 +140,7 @@ The runner prints, in order:
 
 - `run_tests.sh`: finding, filtering and running tests in parallel, the summary, reading
   the tests folder setting
-- `src/test_suite.gd` (`RTTestSuite`): the tests folder setting
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings
 - `import.sh`: importing when the cache is missing or stale
 - `runner.gd`: running one test, hung tests, `RESULT` and the exit code
 - `tests/run_self_tests.sh`: the self-tests against their `.expected`

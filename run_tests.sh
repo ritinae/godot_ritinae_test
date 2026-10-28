@@ -9,10 +9,12 @@
 #   run_tests.sh camp economy      run tests whose name contains any of the filters
 #   run_tests.sh -v                also print every step, check and info line
 #   run_tests.sh --tests dir       look for tests in dir instead of test/
-#   run_tests.sh -j 4              run at most 4 tests at a time (default: one per CPU)
+#   run_tests.sh -j 4              run at most 4 tests at a time
 #
 # The tests folder is test/ unless the project setting ritinae_test/run/tests_dir
 # (Project Settings > Ritinae Test > Run > Tests Dir) or --tests names another.
+# Tests run one per CPU at a time unless the project setting ritinae_test/run/jobs
+# (above 0) or -j says otherwise.
 #
 # The framework's own tests are in tests/ (tests/run_self_tests.sh).
 #
@@ -39,7 +41,10 @@ tests=${tests%\"}
 tests=${tests#res://}
 tests=${tests:-test}
 verbose=0
-jobs=$(nproc 2>/dev/null || echo 1)
+jobs=$(project_setting ritinae_test/run/jobs)
+if [[ ! $jobs =~ ^[1-9][0-9]*$ ]]; then
+	jobs=$(nproc 2>/dev/null || echo 1)
+fi
 filters=()
 while [[ $# -gt 0 ]]; do
 	case "$1" in

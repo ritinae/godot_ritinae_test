@@ -7,6 +7,9 @@ extends RefCounted
 ## The project setting naming the tests folder. run_tests.sh reads it too.
 const TESTS_DIR_SETTING := "ritinae_test/run/tests_dir"
 const DEFAULT_TESTS_DIR := "res://test"
+## The project setting limiting how many tests run at a time; 0 runs one per
+## CPU. run_tests.sh reads it too.
+const JOBS_SETTING := "ritinae_test/run/jobs"
 
 
 ## The tests folder named by the project setting, as a res:// path without a
@@ -17,6 +20,13 @@ static func tests_dir() -> String:
 	if dir.is_empty():
 		return DEFAULT_TESTS_DIR
 	return "res://" + dir
+
+
+## How many tests run at a time: the project setting, or the CPU count when it
+## is 0 or less.
+static func jobs() -> int:
+	var jobs := int(ProjectSettings.get_setting(JOBS_SETTING, 0))
+	return jobs if jobs > 0 else OS.get_processor_count()
 
 
 ## The names of the tests under dir, subfolders included, sorted by path. A
