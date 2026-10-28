@@ -6,7 +6,11 @@ extends EditorPlugin
 ## the editor, through run_tests.sh and runner.gd. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
-var _screen: RTTestsScreen
+# A preload, not a class name: a Control with a class name would show in the
+# Create New Node dialog.
+const TestsScreen := preload("res://addons/ritinae_test/src/tests_screen.gd")
+
+var _screen: TestsScreen
 
 
 func _enter_tree() -> void:
@@ -23,7 +27,7 @@ func _enter_tree() -> void:
 		},
 		0,
 	)
-	_screen = RTTestsScreen.new()
+	_screen = TestsScreen.new()
 	EditorInterface.get_editor_main_screen().add_child(_screen)
 	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_screen.refresh)
 	ProjectSettings.settings_changed.connect(_screen.refresh)

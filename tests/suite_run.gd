@@ -48,7 +48,6 @@ func spec() -> void:
 			var run := RTTestRun.new(RTTestSuite.path_of(DIR, "test_passes"))
 			var received := []
 			run.line_received.connect(func(line: String): received.append(line))
-			add_child(run)
 			run.start()
 			await run.finished
 			check("every line was emitted, in order", received == Array(run.lines)),
@@ -57,7 +56,6 @@ func spec() -> void:
 	describe("a run that doesn't finish", func():
 		it("fails as stopped when stopped", func():
 			var run := RTTestRun.new(RTTestSuite.path_of(DIR, "test_slow"))
-			add_child(run)
 			run.start()
 			await wait_frames(5)
 			check("the run is running", run.running)
@@ -81,7 +79,6 @@ func spec() -> void:
 func _run(name: String, timeout_seconds := 300.0) -> RTTestRun:
 	var run := RTTestRun.new(RTTestSuite.path_of(DIR, name))
 	run.timeout_seconds = timeout_seconds
-	add_child(run)
 	run.start()
 	await run.finished
 	return run

@@ -40,8 +40,8 @@ the addon root.
   summarising in test order. `import.sh` (sourced by both scripts) imports
   the project first when the import cache is missing or stale.
 - `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests
-  main screen (`src/tests_screen.gd`, `RTTestsScreen`) and the
-  `ritinae_test/run/tests_dir` and `ritinae_test/run/jobs` project settings.
+  main screen (`src/tests_screen.gd`) and the `ritinae_test/run/tests_dir`
+  and `ritinae_test/run/jobs` project settings.
 - `editor_runner.gd` (`RTEditorRunner`): the Tests screen's `RTTestSession`,
   saving before a run when the editor would, taking the jobs setting and
   wording the screen's status. The screen itself only shows the run.
@@ -90,7 +90,12 @@ the self-tests pass before the change is done.
 - Refer to the framework's classes by `class_name`, the editor plugin's
   scripts included: the editor loads class names before plugins, even on a
   first launch. Entry points loaded by path (`runner.gd`, `cli_runner.gd`,
-  `test_plugin.gd`) have none; nothing is `preload`ed.
+  `test_plugin.gd`) have none.
+- Keep the editor-side classes out of the Create New Node dialog, which
+  lists every named class extending `Node`: make them `RefCounted` (runs,
+  queues and sessions poll on `SceneTree.process_frame`), and leave a
+  `Control` that must stay one unnamed and `preload` it (the Tests screen).
+  An `Editor` name prefix doesn't hide a script class.
 - Null checks are written `if x:` / `if not x:`.
 - Doc comments (`##`) on classes and public members describe behaviour, not
   history. Prefer descriptive code and names over comments.

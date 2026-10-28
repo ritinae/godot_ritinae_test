@@ -1,11 +1,11 @@
 @tool
 class_name RTTestRun
-extends Node
+extends RefCounted
 ## One test file run in its own headless Godot process through runner.gd. Its
-## output is collected as it arrives and judged: it passes when the process
-## exits with 0 and prints no SCRIPT ERROR. Add the run to the tree, call
-## start() and await finished. How tests are run:
-## addons/ritinae_test/docs/tests.md.
+## output is collected as it arrives, on each frame of the main loop, and
+## judged: it passes when the process exits with 0 and prints no SCRIPT ERROR.
+## Call start() and await finished, keeping a reference meanwhile. How tests
+## are run: addons/ritinae_test/docs/tests.md.
 
 ## Emitted for each line the test prints, from stdout and stderr alike.
 signal line_received(line: String)
@@ -37,32 +37,10 @@ func _init(test_path := "") -> void:
 	path = test_path
 
 
-func _process(_delta: float) -> void:
-	if not running or _pid < 0:
-		return
-	_take_received()
-	if (
-		not timed_out and not stopped
-		and Time.get_ticks_msec() - _started_msec > timeout_seconds * 1000
-	):
-		timed_out = true
-		OS.kill(_pid)
-	if _readers.any(func(reader: Thread) -> bool: return reader.is_alive()):
-		return
-	# OS.kill() has already reaped a killed process, so only one that ended by
-	# itself is asked about.
-	if not stopped and not timed_out:
-		if OS.is_process_running(_pid):
-			return
-		exit_code = OS.get_process_exit_code(_pid)
-	_finish()
-
-
-func _exit_tree() -> void:
-	if running:
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PREDELETE and running:
 		stop()
 		_join_readers()
-		running = false
 
 
 ## Starts the test's process. The game runs at a fixed 60 fps.
@@ -93,6 +71,7 @@ func start() -> void:
 		var reader := Thread.new()
 		reader.start(_read.bind(pipe))
 		_readers.append(reader)
+	(Engine.get_main_loop() as SceneTree).process_frame.connect(_poll)
 
 
 ## Kills the test's process. The test fails as stopped.
@@ -128,7 +107,31 @@ func summary() -> String:
 	return "exit code %d" % exit_code
 
 
+func _poll() -> void:
+	if not running or _pid < 0:
+		return
+	_take_received()
+	if (
+		not timed_out and not stopped
+		and Time.get_ticks_msec() - _started_msec > timeout_seconds * 1000
+	):
+		timed_out = true
+		OS.kill(_pid)
+	if _readers.any(func(reader: Thread) -> bool: return reader.is_alive()):
+		return
+	# OS.kill() has already reaped a killed process, so only one that ended by
+	# itself is asked about.
+	if not stopped and not timed_out:
+		if OS.is_process_running(_pid):
+			return
+		exit_code = OS.get_process_exit_code(_pid)
+	_finish()
+
+
 func _finish() -> void:
+	var frames := (Engine.get_main_loop() as SceneTree).process_frame
+	if frames.is_connected(_poll):
+		frames.disconnect(_poll)
 	_join_readers()
 	_take_received()
 	running = false

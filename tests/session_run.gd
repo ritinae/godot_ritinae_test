@@ -77,7 +77,6 @@ func spec() -> void:
 func _session() -> RTTestSession:
 	var session := RTTestSession.new()
 	session.jobs = 2
-	add_child(session)
 	return session
 
 

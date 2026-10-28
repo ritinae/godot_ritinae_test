@@ -1,15 +1,15 @@
 @tool
 class_name RTTestQueue
-extends Node
+extends RefCounted
 ## Test files run several at a time, each as an RTTestRun.
 ##
-## Add the queue to the tree, call start() with the tests' paths and await
-## finished. At most jobs runs go at once, started in the order given. How
+## Call start() with the tests' paths and await finished, keeping a reference
+## meanwhile. At most jobs runs go at once, started in the order given. How
 ## tests are run: addons/ritinae_test/docs/tests.md.
 
-## Emitted when a test's run is added and about to start.
+## Emitted when a test's run is made and about to start.
 signal test_started(path: String, run: RTTestRun)
-## Emitted when a test's run has ended; the run is freed after this frame.
+## Emitted when a test's run has ended; the queue lets go of it after this.
 signal test_finished(path: String, run: RTTestRun)
 ## Emitted once every test given to start() has finished or was stopped.
 signal finished
@@ -51,9 +51,8 @@ func _fill() -> void:
 		var run := RTTestRun.new(_waiting[0])
 		_waiting.remove_at(0)
 		run.timeout_seconds = timeout_seconds
-		run.finished.connect(_on_run_finished.bind(run))
+		run.finished.connect(_on_run_finished)
 		_runs.append(run)
-		add_child(run)
 		test_started.emit(run.path, run)
 		run.start()
 	if _runs.is_empty() and running:
@@ -61,8 +60,9 @@ func _fill() -> void:
 		finished.emit()
 
 
-func _on_run_finished(run: RTTestRun) -> void:
-	_runs.erase(run)
-	test_finished.emit(run.path, run)
-	run.queue_free()
+func _on_run_finished() -> void:
+	for run in _runs.duplicate():
+		if not run.running:
+			_runs.erase(run)
+			test_finished.emit(run.path, run)
 	_fill()

@@ -66,7 +66,6 @@ func _start(args: PackedStringArray) -> int:
 	_session.jobs = jobs
 	_session.test_finished.connect(_on_test_finished)
 	_session.finished.connect(_finish)
-	root.add_child(_session)
 	_session.start(dir, names)
 	return -1
 

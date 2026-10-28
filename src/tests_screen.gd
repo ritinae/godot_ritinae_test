@@ -1,5 +1,4 @@
 @tool
-class_name RTTestsScreen
 extends VBoxContainer
 ## The editor's Tests main screen: lists the project's tests and runs them
 ## several at a time, each in its own headless process, showing each test's
@@ -46,7 +45,6 @@ func _ready() -> void:
 	_runner.test_started.connect(_on_test_started)
 	_runner.test_finished.connect(_on_test_finished)
 	_runner.finished.connect(_finish)
-	add_child(_runner)
 
 	var toolbar := HBoxContainer.new()
 	add_child(toolbar)

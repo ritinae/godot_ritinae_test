@@ -1,10 +1,10 @@
 @tool
 class_name RTTestSession
-extends Node
+extends RefCounted
 ## A run of a suite's tests, named as RTTestSuite names them.
 ##
-## Add the session to the tree, call start() with the tests folder and the
-## names, and await finished. Each test runs in its own process, at most jobs
+## Call start() with the tests folder and the names and await finished,
+## keeping a reference meanwhile. Each test runs in its own process, at most jobs
 ## at a time; results are kept by name. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
@@ -33,8 +33,7 @@ var _taken := 0
 func _init() -> void:
 	_queue.test_started.connect(_on_test_started)
 	_queue.test_finished.connect(_on_test_finished)
-	_queue.finished.connect(func(): finished.emit())
-	add_child(_queue)
+	_queue.finished.connect(_on_queue_finished)
 
 
 ## Runs the tests with the given names under tests_dir, unless tests are
@@ -104,6 +103,10 @@ func _on_test_finished(path: String, run: RTTestRun) -> void:
 	_runs.erase(name)
 	results[name] = { "lines": run.lines, "summary": run.summary(), "passed": run.passed() }
 	test_finished.emit(name, results[name])
+
+
+func _on_queue_finished() -> void:
+	finished.emit()
 
 
 func _name_of(path: String) -> String:

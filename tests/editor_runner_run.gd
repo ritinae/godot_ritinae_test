@@ -56,5 +56,4 @@ func spec() -> void:
 
 func _runner() -> RTEditorRunner:
 	var runner := RTEditorRunner.new()
-	add_child(runner)
 	return runner

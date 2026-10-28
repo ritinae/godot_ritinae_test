@@ -98,7 +98,7 @@ folder and how many tests run at a time.
 ## Code
 
 - `test_plugin.gd`: the main screen and the project settings
-- `src/tests_screen.gd` (`RTTestsScreen`): the screen
+- `src/tests_screen.gd`: the screen
 - `editor_runner.gd` (`RTEditorRunner`): saving before a run, the jobs setting, the status
   while tests run and once they have
 - `src/test_session.gd` (`RTTestSession`): running tests by name, their

@@ -86,7 +86,6 @@ func _queue(jobs: int) -> RTTestQueue:
 		_finished.append(path)
 		_summaries[path] = run.summary(),
 	)
-	add_child(queue)
 	return queue
 
 
