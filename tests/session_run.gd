@@ -18,9 +18,9 @@ func spec() -> void:
 		it("keeps each test's result by name", func():
 			var session := _session()
 			var reported := []
-			session.test_finished.connect(func(name: String, _result: Dictionary):
-				reported.append(name),
-			)
+			session \
+					.test_finished \
+					.connect(func(name: String, _result: Dictionary): reported.append(name))
 			session.start(DIR, PackedStringArray(NAMES))
 			await session.finished
 			check("the session is no longer running", not session.is_running())
@@ -38,9 +38,11 @@ func spec() -> void:
 		it("hands out the finished tests in list order", func():
 			var session := _session()
 			var taken := []
-			session.test_finished.connect(func(_name: String, _result: Dictionary):
-				taken.append_array(session.take_finished_in_order()),
-			)
+			session \
+					.test_finished \
+					.connect(func(_name: String, _result: Dictionary):
+						taken.append_array(session.take_finished_in_order()),
+					)
 			session.start(DIR, PackedStringArray(NAMES))
 			await session.finished
 			check("every test was handed out once, in list order", taken == NAMES),
