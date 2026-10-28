@@ -1,6 +1,7 @@
 # Running tests
 
-Tests run headless, one Godot process per test file, at a fixed 60 fps.
+Tests run headless, one Godot process per test file, at a fixed 60 fps,
+several processes at a time.
 `run_tests.sh` finds a project's tests, runs each through `runner.gd` and
 sums up which passed. The runner's output lines are a contract that the
 scripts parse.
@@ -70,6 +71,16 @@ godot --headless --fixed-fps 60 --script res://addons/ritinae_test/runner.gd -- 
   `RESULT` line and quits.
 - `run_tests.sh` also stops a test process after 300 real seconds.
 
+## Running in parallel
+
+- `run_tests.sh` runs up to `-j <n>` (`--jobs <n>`) tests at a time, one per
+  CPU (`nproc`) by default; `-j 1` runs them one by one. A `-j` that isn't a
+  positive number prints `-j needs a positive number` and exits with 2.
+- Each test's output is kept apart and reported whole, in test order, as
+  soon as it and every test before it have finished, so the output is the
+  same whatever `-j` is.
+- Interrupting the script (Ctrl-C) stops the tests still running.
+
 ## Script errors
 
 A script error stops the test's `run()` early but doesn't fail the
@@ -117,13 +128,14 @@ The runner prints, in order:
 | `run_tests.sh <filter>...` | Run the tests whose name contains any of the filters |
 | `run_tests.sh -v` | Also print every step, check and info line |
 | `run_tests.sh --tests <dir>` | Look for tests in `<dir>` |
+| `run_tests.sh -j <n>` | Run at most `<n>` tests at a time (default: one per CPU) |
 | `ritinae_test/run/tests_dir` | The tests folder, `res://test` by default |
 | `tests/run_self_tests.sh [filter]` | Run the framework's self-tests |
 | `GODOT=<binary>` | Use a different Godot binary in either script |
 
 ## Code
 
-- `run_tests.sh`: finding, filtering and running tests, the summary, reading
+- `run_tests.sh`: finding, filtering and running tests in parallel, the summary, reading
   the tests folder setting
 - `src/test_suite.gd` (`RTTestSuite`): the tests folder setting
 - `import.sh`: importing when the cache is missing or stale

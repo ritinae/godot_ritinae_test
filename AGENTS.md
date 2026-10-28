@@ -13,7 +13,7 @@ Run from anywhere; the scripts work from the project root.
 ```sh
 addons/ritinae_test/tests/run_self_tests.sh         # run the framework's self-tests
 addons/ritinae_test/tests/run_self_tests.sh hooks   # self-tests whose name contains "hooks"
-addons/ritinae_test/run_tests.sh [filter...] [-v] [--tests dir]   # run a project's tests (default dir: test/)
+addons/ritinae_test/run_tests.sh [filter...] [-v] [--tests dir] [-j n]   # run a project's tests (default dir: test/, one test per CPU at a time)
 ```
 
 Set `GODOT` to use a different Godot binary.
@@ -34,7 +34,8 @@ the addon root.
 - `src/page.gd` (`RTPage`), `src/assertion.gd` (`RTAssertion`) and
   `src/expect.gd` (`RTExpect`): pages make assertions with `_assert()`.
   `RTExpect` checks them and tracks the ones that never reach an expect call.
-- `run_tests.sh`: runs every `test_*.gd` in a tests folder and summarises.
+- `run_tests.sh`: runs every `test_*.gd` in a tests folder, several at a
+  time, and summarises in test order.
   `import.sh` (sourced by both scripts) imports the project first when the
   import cache is missing or stale.
 - `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests

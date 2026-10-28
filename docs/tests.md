@@ -32,6 +32,7 @@ addons/ritinae_test/run_tests.sh gameplay/camp   # tests in a folder (and its su
 addons/ritinae_test/run_tests.sh camp economy    # tests whose name contains "camp" or "economy"
 addons/ritinae_test/run_tests.sh -v              # also print every step, check and info line
 addons/ritinae_test/run_tests.sh --tests dir     # look for tests in dir instead of the tests folder
+addons/ritinae_test/run_tests.sh -j 4            # run at most 4 tests at a time (default: one per CPU)
 ```
 
 Set `GODOT` to use a different Godot binary. To run one test file without
@@ -160,7 +161,7 @@ func should_be_blocked(cell: Vector2i, kind: Building.Kind) -> RTAssertion:
 ## How a test runs
 
 `run_tests.sh` imports the project if needed, then runs each test file through
-`runner.gd` at a fixed 60 fps. The runner adds the scene from
+`runner.gd` at a fixed 60 fps, in its own process, several at a time. The runner adds the scene from
 `create_scene()` (if any) and the test to the tree, calls `run()` and exits
 with 0 when every check passed and at least one did. A test fails as hung
 after `max_seconds` (180) game seconds. A script error stops a test early.

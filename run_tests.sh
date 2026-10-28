@@ -9,6 +9,7 @@
 #   run_tests.sh camp economy      run tests whose name contains any of the filters
 #   run_tests.sh -v                also print every step, check and info line
 #   run_tests.sh --tests dir       look for tests in dir instead of test/
+#   run_tests.sh -j 4              run at most 4 tests at a time (default: one per CPU)
 #
 # The tests folder is test/ unless the project setting ritinae_test/run/tests_dir
 # (Project Settings > Ritinae Test > Run > Tests Dir) or --tests names another.
@@ -38,10 +39,19 @@ tests=${tests%\"}
 tests=${tests#res://}
 tests=${tests:-test}
 verbose=0
+jobs=$(nproc 2>/dev/null || echo 1)
 filters=()
 while [[ $# -gt 0 ]]; do
 	case "$1" in
 		-v) verbose=1 ;;
+		-j | --jobs)
+			shift
+			jobs="${1:?-j needs a number}"
+			if [[ ! $jobs =~ ^[1-9][0-9]*$ ]]; then
+				echo "-j needs a positive number"
+				exit 2
+			fi
+			;;
 		--tests)
 			shift
 			tests="${1:?--tests needs a folder}"
@@ -72,15 +82,44 @@ matches_filters() {
 	return 1
 }
 
-failed=()
-count=0
+names=()
 while IFS= read -r path; do
 	name=${path#"$tests"/}
 	name=${name%.gd}
-	matches_filters "$name" || continue
-	count=$((count + 1))
-	output=$(timeout 300 "$godot" --headless --fixed-fps 60 --script "$runner" -- "res://$path" 2>&1 </dev/null)
-	status=$?
+	matches_filters "$name" && names+=("$name")
+done < <(find "$tests" -name 'test_*.gd' | sort)
+count=${#names[@]}
+
+# Each test runs in the background into $work/<index>.out, then writes
+# <index>.status; results print in test order as soon as the earlier ones are in.
+work=$(mktemp -d)
+
+# timeout runs in its own process group, out of reach of Ctrl-C; it passes a
+# TERM on to Godot.
+stop_tests() {
+	local job
+	for job in $(jobs -p); do
+		pkill -TERM -P "$job" 2>/dev/null
+		kill "$job" 2>/dev/null
+	done
+	rm -rf "$work"
+}
+trap stop_tests EXIT
+trap 'exit 130' INT TERM
+
+run_test() {
+	local index=$1 path=$2
+	timeout 300 "$godot" --headless --fixed-fps 60 --script "$runner" -- "res://$path" \
+		>"$work/$index.out" 2>&1 </dev/null
+	echo $? >"$work/$index.status.tmp"
+	mv "$work/$index.status.tmp" "$work/$index.status"
+}
+
+failed=()
+report() {
+	local index=$1 name=${names[$1]} output status result
+	output=$(<"$work/$index.out")
+	status=$(<"$work/$index.status")
 	result=$(grep -E "^RESULT:" <<<"$output" | tail -1)
 	if [[ $status -eq 0 ]] && ! grep -q "SCRIPT ERROR" <<<"$output"; then
 		echo "PASS $name (${result#RESULT: })"
@@ -91,7 +130,25 @@ while IFS= read -r path; do
 		grep -E "^info|^STEP|^FAIL|SCRIPT ERROR|ERROR:|^\s+at:" <<<"$output" | sed 's/^/    /'
 		failed+=("$name")
 	fi
-done < <(find "$tests" -name 'test_*.gd' | sort)
+}
+
+reported=0
+report_finished() {
+	while [[ $reported -lt $count && -f $work/$reported.status ]]; do
+		report "$reported"
+		reported=$((reported + 1))
+	done
+}
+
+for index in "${!names[@]}"; do
+	while [[ $(jobs -rp | wc -l) -ge $jobs ]]; do
+		wait -n
+		report_finished
+	done
+	run_test "$index" "$tests/${names[$index]}.gd" &
+done
+wait
+report_finished
 
 echo
 if [[ $count -eq 0 ]]; then
