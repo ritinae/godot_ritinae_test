@@ -1,0 +1,12 @@
+exit 0
+STEP the editor runner > runs as many tests at a time as the jobs setting says
+PASS one test runs at a time
+PASS the progress counts the running and done tests
+STEP the editor runner > sums up a run with failures
+PASS one per CPU runs at a time at 0
+PASS the progress counts every test done
+PASS the summary counts the failures
+STEP the editor runner > sums up a passing run
+PASS the summary says all passed
+STEP the editor runner (after all)
+RESULT: 6 passed, 0 failed

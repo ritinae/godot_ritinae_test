@@ -1,0 +1,20 @@
+exit 0
+STEP a finished session > keeps each test's result by name
+PASS the session is no longer running
+PASS every test was reported by name
+PASS a passing test passed
+PASS a failing test has its summary
+PASS the failed tests are listed in list order
+STEP a finished session > hands out the finished tests in list order
+PASS every test was handed out once, in list order
+STEP a finished session > forgets the last run's results when started again
+PASS only the new run's result is kept
+STEP a running session > names its running tests and stops them
+PASS the session is running
+PASS both tests started, by name
+PASS the slow test is running
+PASS its run is at hand
+PASS the slow test was stopped
+PASS no test is running
+PASS no run is at hand
+RESULT: 14 passed, 0 failed

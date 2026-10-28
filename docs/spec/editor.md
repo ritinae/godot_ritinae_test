@@ -98,7 +98,11 @@ folder and how many tests run at a time.
 ## Code
 
 - `test_plugin.gd`: the main screen and the project settings
-- `src/tests_screen.gd`: the screen
+- `src/tests_screen.gd` (`RTTestsScreen`): the screen
+- `editor_runner.gd` (`RTEditorRunner`): saving before a run, the jobs setting, the status
+  while tests run and once they have
+- `src/test_session.gd` (`RTTestSession`): running tests by name, their
+  results and the failed ones
 - `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
   finding and filtering tests
 - `src/test_queue.gd` (`RTTestQueue`): running tests several at a time
@@ -110,6 +114,10 @@ folder and how many tests run at a time.
 - `tests/suite_find.gd`: finding and filtering tests, the settings
 - `tests/queue_run.gd`: running several tests at a time, in order, and
   stopping them
+- `tests/session_run.gd`: results by name, the failed tests, the running
+  ones, stopping
+- `tests/editor_runner_run.gd`: the jobs setting and the status texts
 - `tests/suite_run.gd`: running, judging, stopping and timing out, against
   the tests in `tests/fixtures/suite/`
-- The screen itself has no self-test; it needs the editor.
+- The screen itself, and saving before a run, have no self-test; they need
+  the editor.

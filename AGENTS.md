@@ -36,18 +36,24 @@ the addon root.
   `RTExpect` checks them and tracks the ones that never reach an expect call.
 - `run_tests.sh`: imports the project when needed and starts
   `cli_runner.gd`, a `SceneTree` script running every `test_*.gd` in a
-  tests folder through `RTTestQueue`, several at a time, and summarising in
-  test order. `import.sh` (sourced by both scripts) imports the project first when the
-  import cache is missing or stale.
+  tests folder through an `RTTestSession`, several at a time, and
+  summarising in test order. `import.sh` (sourced by both scripts) imports
+  the project first when the import cache is missing or stale.
 - `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests
-  main screen (`src/tests_screen.gd`) and the `ritinae_test/run/tests_dir`
-  and `ritinae_test/run/jobs` project settings.
+  main screen (`src/tests_screen.gd`, `RTTestsScreen`) and the
+  `ritinae_test/run/tests_dir` and `ritinae_test/run/jobs` project settings.
+- `editor_runner.gd` (`RTEditorRunner`): the Tests screen's `RTTestSession`,
+  saving before a run when the editor would, taking the jobs setting and
+  wording the screen's status. The screen itself only shows the run.
+- `src/test_session.gd` (`RTTestSession`): a run of a suite's tests by
+  name, keeping their results, the failed ones and the order they finish in,
+  for `cli_runner.gd` and `editor_runner.gd`.
 - `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
   and finding and filtering tests as `run_tests.sh` does.
-- `src/test_queue.gd` (`RTTestQueue`): runs tests several at a time as
-  `RTTestRun`s, for the Tests screen and `cli_runner.gd`.
+- `src/test_queue.gd` (`RTTestQueue`): runs test files several at a time as
+  `RTTestRun`s, for `RTTestSession`.
 - `src/test_run.gd` (`RTTestRun`): runs one test in its own headless process
-  and judges it, for the Tests screen and `cli_runner.gd`.
+  and judges it.
 - `tests/`: the self-tests. `tests/fixtures/` holds tests the self-tests
   run as data; they aren't self-tests themselves.
 
@@ -81,6 +87,10 @@ the self-tests pass before the change is done.
 - Keep [docs/tests.md](docs/tests.md) up to date with every change to how
   tests or pages are written or run. Doc comments in the code describe the
   class and point there, rather than repeating it.
+- Refer to the framework's classes by `class_name`, the editor plugin's
+  scripts included: the editor loads class names before plugins, even on a
+  first launch. Entry points loaded by path (`runner.gd`, `cli_runner.gd`,
+  `test_plugin.gd`) have none; nothing is `preload`ed.
 - Null checks are written `if x:` / `if not x:`.
 - Doc comments (`##`) on classes and public members describe behaviour, not
   history. Prefer descriptive code and names over comments.

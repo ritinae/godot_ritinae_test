@@ -146,6 +146,8 @@ The runner prints, in order:
   reporting them in order, the summary and its exit code
 - `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
   finding and filtering tests
+- `src/test_session.gd` (`RTTestSession`): running tests by name, the
+  failed ones and handing them out in list order
 - `src/test_queue.gd` (`RTTestQueue`) and `src/test_run.gd` (`RTTestRun`):
   running tests several at a time, timing out, judging them
 - `import.sh`: importing when the cache is missing or stale
@@ -156,6 +158,8 @@ The runner prints, in order:
 
 - `tests/cli_runner.gd`: `run_tests.sh`'s options, reports, summary
   and exit codes, against the tests in `tests/fixtures/suite/`
+- `tests/session_run.gd`: running tests by name and handing them out in
+  list order
 - `tests/run_passing.gd`, `tests/run_failing.gd`
 - `tests/run_no_checks.gd`
 - `tests/run_hang.gd`

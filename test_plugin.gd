@@ -6,27 +6,24 @@ extends EditorPlugin
 ## the editor, through run_tests.sh and runner.gd. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
-const TestsScreen := preload("res://addons/ritinae_test/src/tests_screen.gd")
-const TestSuite := preload("res://addons/ritinae_test/src/test_suite.gd")
-
-var _screen: TestsScreen
+var _screen: RTTestsScreen
 
 
 func _enter_tree() -> void:
 	_add_setting(
-		{ "name": TestSuite.TESTS_DIR_SETTING, "type": TYPE_STRING, "hint": PROPERTY_HINT_DIR },
-		TestSuite.DEFAULT_TESTS_DIR,
+		{ "name": RTTestSuite.TESTS_DIR_SETTING, "type": TYPE_STRING, "hint": PROPERTY_HINT_DIR },
+		RTTestSuite.DEFAULT_TESTS_DIR,
 	)
 	_add_setting(
 		{
-			"name": TestSuite.JOBS_SETTING,
+			"name": RTTestSuite.JOBS_SETTING,
 			"type": TYPE_INT,
 			"hint": PROPERTY_HINT_RANGE,
 			"hint_string": "0,64,1,or_greater",
 		},
 		0,
 	)
-	_screen = TestsScreen.new()
+	_screen = RTTestsScreen.new()
 	EditorInterface.get_editor_main_screen().add_child(_screen)
 	EditorInterface.get_resource_filesystem().filesystem_changed.connect(_screen.refresh)
 	ProjectSettings.settings_changed.connect(_screen.refresh)

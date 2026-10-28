@@ -1,13 +1,10 @@
 @tool
+class_name RTTestsScreen
 extends VBoxContainer
 ## The editor's Tests main screen: lists the project's tests and runs them
 ## several at a time, each in its own headless process, showing each test's
 ## result and the output of the selected one. Tests are listed in a tree of their folders. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
-
-const TestQueue := preload("res://addons/ritinae_test/src/test_queue.gd")
-const TestRun := preload("res://addons/ritinae_test/src/test_run.gd")
-const TestSuite := preload("res://addons/ritinae_test/src/test_suite.gd")
 
 ## The status the status column starts out fitting; it widens for longer ones.
 const TYPICAL_STATUS := "FAIL (99 passed, 99 failed)"
@@ -30,14 +27,10 @@ var _items := { }
 ## The TreeItem of each folder of the listed tests, by path under the tests
 ## folder.
 var _folders := { }
-## The lines, summary and pass of each test that has run, by name.
+## The lines, summary and pass of each test that has run, in this or an earlier
+## run, by name.
 var _results := { }
-var _queue := TestQueue.new()
-## The run of each running test, by name, in the order they started.
-var _runs := { }
-var _run_count := 0
-var _done_count := 0
-var _failed := PackedStringArray()
+var _runner := RTEditorRunner.new()
 ## Whether the selection follows the earliest running test; it stops when a
 ## test is picked.
 var _following := false
@@ -50,10 +43,10 @@ var _status_width := 0
 
 func _ready() -> void:
 	size_flags_vertical = SIZE_EXPAND_FILL
-	_queue.test_started.connect(_on_test_started)
-	_queue.test_finished.connect(_on_test_finished)
-	_queue.finished.connect(_finish)
-	add_child(_queue)
+	_runner.test_started.connect(_on_test_started)
+	_runner.test_finished.connect(_on_test_finished)
+	_runner.finished.connect(_finish)
+	add_child(_runner)
 
 	var toolbar := HBoxContainer.new()
 	add_child(toolbar)
@@ -112,10 +105,10 @@ func _ready() -> void:
 ## Lists the tests in the tests folder that match the filter, unless tests are
 ## running.
 func refresh() -> void:
-	if _queue.running or not is_node_ready():
+	if _runner.is_running() or not is_node_ready():
 		return
 	var selected := _selected_name()
-	_dir = TestSuite.tests_dir()
+	_dir = RTTestSuite.tests_dir()
 	_tree.clear()
 	_items.clear()
 	_folders.clear()
@@ -124,7 +117,7 @@ func refresh() -> void:
 		_status.text = "No tests folder %s" % _dir
 		_run_button.disabled = true
 		return
-	var names := TestSuite.find(_dir, _filters())
+	var names := RTTestSuite.find(_dir, _filters())
 	for name in names:
 		var item := _folder(name.get_base_dir(), root).create_child()
 		item.set_text(0, name.get_file())
@@ -148,7 +141,7 @@ func refresh() -> void:
 
 ## Stops the running tests, which fail as stopped, and the tests waiting to run.
 func stop() -> void:
-	_queue.stop()
+	_runner.stop()
 
 
 func _run_listed() -> void:
@@ -156,12 +149,8 @@ func _run_listed() -> void:
 
 
 func _start(names: Array) -> void:
-	if _queue.running or names.is_empty():
+	if _runner.is_running() or names.is_empty():
 		return
-	_save_before_running()
-	_run_count = names.size()
-	_done_count = 0
-	_failed.clear()
 	_following = true
 	for name in names:
 		_results.erase(name)
@@ -169,29 +158,15 @@ func _start(names: Array) -> void:
 	_run_button.disabled = true
 	_stop_button.disabled = false
 	_filter.editable = false
-	var paths := PackedStringArray()
-	for name: String in names:
-		paths.append(TestSuite.path_of(_dir, name))
-	_queue.jobs = TestSuite.jobs()
-	_queue.start(paths)
-	_show_progress()
+	_runner.start(_dir, PackedStringArray(names))
+	_status.text = _runner.progress_text()
 
 
-## Saves scenes and scripts first when the editor saves them before running the
-## project, as tests run from the files on disk.
-func _save_before_running() -> void:
-	if EditorInterface.get_editor_settings().get_setting("run/auto_save/save_before_running"):
-		EditorInterface.save_all_scenes()
-		EditorInterface.get_script_editor().save_all_scripts()
-
-
-func _on_test_started(path: String, run: TestRun) -> void:
-	var name := _name_of(path)
-	_runs[name] = run
+func _on_test_started(name: String, run: RTTestRun) -> void:
 	_items[name].set_text(1, "running…")
 	_items[name].set_custom_color(1, get_theme_color("font_color", "Editor"))
 	run.line_received.connect(_on_line_received.bind(name))
-	_show_progress()
+	_status.text = _runner.progress_text()
 	_follow()
 
 
@@ -200,46 +175,28 @@ func _on_line_received(line: String, name: String) -> void:
 		_append(line)
 
 
-func _on_test_finished(path: String, run: TestRun) -> void:
-	var name := _name_of(path)
-	_runs.erase(name)
-	_done_count += 1
-	_results[name] = { "lines": run.lines, "summary": run.summary(), "passed": run.passed() }
-	if not run.passed():
-		_failed.append(name)
+func _on_test_finished(name: String, result: Dictionary) -> void:
+	_results[name] = result
 	_show_result(name)
-	_show_progress()
+	_status.text = _runner.progress_text()
 	_follow()
-
-
-func _show_progress() -> void:
-	_status.text = "Running %d, %d of %d done" % [_runs.size(), _done_count, _run_count]
 
 
 ## Selects the earliest running test while the selection follows the run.
 func _follow() -> void:
-	if not _following or _runs.is_empty():
-		return
-	var name: String = _runs.keys()[0]
-	if name != _selected_name():
-		_select(name)
-
-
-func _name_of(path: String) -> String:
-	return path.trim_prefix(_dir + "/").trim_suffix(".gd")
+	var running := _runner.running_names()
+	if _following and not running.is_empty() and running[0] != _selected_name():
+		_select(running[0])
 
 
 func _finish() -> void:
 	_run_button.disabled = false
 	_stop_button.disabled = true
 	_filter.editable = true
-	if _failed.is_empty():
-		_status.text = "All %d tests passed." % _run_count
-	else:
-		_status.text = "%d of %d tests failed." % [_failed.size(), _run_count]
-		_failed.sort()
-		if _following and _failed[0] in _items:
-			_select(_failed[0])
+	_status.text = _runner.summary_text()
+	var failed := _runner.failed()
+	if _following and not failed.is_empty() and failed[0] in _items:
+		_select(failed[0])
 
 
 ## The item of the folder at path under the tests folder, made with its parent
@@ -358,8 +315,9 @@ func _on_item_selected() -> void:
 	_output.clear()
 	var name := _selected_name()
 	var lines := PackedStringArray()
-	if name in _runs:
-		lines = _runs[name].lines
+	var run := _runner.run_of(name)
+	if run:
+		lines = run.lines
 	elif name in _results:
 		lines = _results[name].lines
 	for line in lines:
