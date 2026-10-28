@@ -34,9 +34,10 @@ the addon root.
 - `src/page.gd` (`RTPage`), `src/assertion.gd` (`RTAssertion`) and
   `src/expect.gd` (`RTExpect`): pages make assertions with `_assert()`.
   `RTExpect` checks them and tracks the ones that never reach an expect call.
-- `run_tests.sh`: runs every `test_*.gd` in a tests folder, several at a
-  time, and summarises in test order.
-  `import.sh` (sourced by both scripts) imports the project first when the
+- `run_tests.sh`: imports the project when needed and starts
+  `cli_runner.gd`, a `SceneTree` script running every `test_*.gd` in a
+  tests folder through `RTTestQueue`, several at a time, and summarising in
+  test order. `import.sh` (sourced by both scripts) imports the project first when the
   import cache is missing or stale.
 - `plugin.cfg` and `test_plugin.gd`: the editor plugin. It adds the Tests
   main screen (`src/tests_screen.gd`) and the `ritinae_test/run/tests_dir`
@@ -44,16 +45,16 @@ the addon root.
 - `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
   and finding and filtering tests as `run_tests.sh` does.
 - `src/test_queue.gd` (`RTTestQueue`): runs tests several at a time as
-  `RTTestRun`s, for the Tests screen.
+  `RTTestRun`s, for the Tests screen and `cli_runner.gd`.
 - `src/test_run.gd` (`RTTestRun`): runs one test in its own headless process
-  for the Tests screen, and judges it as `run_tests.sh` does.
+  and judges it, for the Tests screen and `cli_runner.gd`.
 - `tests/`: the self-tests. `tests/fixtures/` holds tests the self-tests
   run as data; they aren't self-tests themselves.
 
 ## Output contract
 
-The runner's output is parsed by `run_tests.sh` and compared line by line by
-the self-tests. Changing it is a breaking change:
+The runner's output is parsed by `RTTestRun` (for `run_tests.sh` and the
+Tests screen) and compared line by line by the self-tests. Changing it is a breaking change:
 
 - `STEP <path>` (and `(before all)` / `(after all)`), `PASS <description>`,
   `FAIL <description>` and a final `RESULT: N passed, M failed`.

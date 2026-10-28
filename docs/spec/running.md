@@ -2,16 +2,18 @@
 
 Tests run headless, one Godot process per test file, at a fixed 60 fps,
 several processes at a time.
-`run_tests.sh` finds a project's tests, runs each through `runner.gd` and
-sums up which passed. The runner's output lines are a contract that the
+`run_tests.sh` imports the project when needed and starts `cli_runner.gd`
+in one headless process, which finds the tests, runs each through
+`runner.gd` and sums up which passed. The runner's output lines are a contract that the
 scripts parse.
 
 ## Finding tests
 
 - `run_tests.sh` runs every `test_*.gd` under the tests folder, subfolders
-  included, sorted by path. The folder is `--tests <dir>` when given, else
+  included, sorted by path, character by character (`test_farm_orders`
+  before `test_farming`), as the Tests screen lists them. The folder is `--tests <dir>` when given, else
   the project setting `ritinae_test/run/tests_dir`, else `test/`. The
-  setting is read from `project.godot`, with or without `res://`; a
+  setting is read through the project settings, with or without `res://`; a
   trailing `/` is ignored either way. The Tests screen (see the editor
   spec) uses the same setting.
 - A test's name is its path under that folder without `.gd`
@@ -69,7 +71,8 @@ godot --headless --fixed-fps 60 --script res://addons/ritinae_test/runner.gd -- 
   test may set it in `_init()`) fails with
   `FAIL test finished within <max_seconds> game seconds`, then prints its
   `RESULT` line and quits.
-- `run_tests.sh` also stops a test process after 300 real seconds.
+- `run_tests.sh` also stops a test process after 300 real seconds; it
+  fails as `timed out after 300 real seconds`.
 
 ## Running in parallel
 
@@ -104,7 +107,7 @@ The runner prints, in order:
 - `PASS <name> (N passed, M failed)`. With `-v` it also prints the test's
   `STEP`, `PASS`, `FAIL` and `info` lines, indented by 4 spaces.
 - `FAIL <name> (N passed, M failed)` (or `(exit code N)` when there was no
-  `RESULT` line), followed by its `info`, `STEP`, `FAIL`, `SCRIPT ERROR`,
+  `RESULT` line, or `(timed out after 300 real seconds)`), followed by its `info`, `STEP`, `FAIL`, `SCRIPT ERROR`,
   `ERROR:` and stack (`at:`) lines, indented by 4 spaces.
 - After a blank line: `All N tests passed.`, or
   `K of N tests failed: <names>` and exit code 1, or `No tests matched.` and
@@ -138,15 +141,21 @@ The runner prints, in order:
 
 ## Code
 
-- `run_tests.sh`: finding, filtering and running tests in parallel, the summary, reading
-  the tests folder setting
-- `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings
+- `run_tests.sh`: importing, then starting `cli_runner.gd`
+- `cli_runner.gd`: the options, running the tests in parallel and
+  reporting them in order, the summary and its exit code
+- `src/test_suite.gd` (`RTTestSuite`): the tests folder and jobs settings,
+  finding and filtering tests
+- `src/test_queue.gd` (`RTTestQueue`) and `src/test_run.gd` (`RTTestRun`):
+  running tests several at a time, timing out, judging them
 - `import.sh`: importing when the cache is missing or stale
 - `runner.gd`: running one test, hung tests, `RESULT` and the exit code
 - `tests/run_self_tests.sh`: the self-tests against their `.expected`
 
 ## Tests
 
+- `tests/cli_runner.gd`: `run_tests.sh`'s options, reports, summary
+  and exit codes, against the tests in `tests/fixtures/suite/`
 - `tests/run_passing.gd`, `tests/run_failing.gd`
 - `tests/run_no_checks.gd`
 - `tests/run_hang.gd`

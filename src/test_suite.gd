@@ -1,7 +1,7 @@
 class_name RTTestSuite
 extends RefCounted
 ## A project's tests: the test_*.gd files under its tests folder, found and
-## filtered by name as run_tests.sh does. How tests are run:
+## filtered by name, for run_tests.sh and the Tests screen. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
 ## The project setting naming the tests folder. run_tests.sh reads it too.

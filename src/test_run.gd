@@ -2,8 +2,9 @@
 class_name RTTestRun
 extends Node
 ## One test file run in its own headless Godot process through runner.gd. Its
-## output is collected as it arrives and judged as run_tests.sh judges it. Add
-## the run to the tree, call start() and await finished. How tests are run:
+## output is collected as it arrives and judged: it passes when the process
+## exits with 0 and prints no SCRIPT ERROR. Add the run to the tree, call
+## start() and await finished. How tests are run:
 ## addons/ritinae_test/docs/tests.md.
 
 ## Emitted for each line the test prints, from stdout and stderr alike.
@@ -64,8 +65,7 @@ func _exit_tree() -> void:
 		running = false
 
 
-## Starts the test's process. The game runs at a fixed 60 fps, as in
-## run_tests.sh.
+## Starts the test's process. The game runs at a fixed 60 fps.
 func start() -> void:
 	var godot := OS.get_executable_path()
 	var args := PackedStringArray(

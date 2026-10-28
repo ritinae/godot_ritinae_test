@@ -1,0 +1,26 @@
+exit 0
+STEP a run > reports each test in order, then a summary
+PASS it exits with 1
+PASS each test is reported in order, with its counts
+PASS a failed check is shown under its test
+PASS a script error is shown under its test
+PASS a passing test shows no steps
+PASS the summary names the failed tests
+STEP a run > prints the same whatever the jobs
+PASS the output is the same
+STEP a run > passes when every test passes, showing steps with -v
+PASS it exits with 0
+PASS the passing test's checks are shown
+PASS the summary says all passed
+STEP a run with nothing to run > fails when no test matches
+PASS it exits with 1
+PASS it says so
+STEP a run with nothing to run > fails without the tests folder
+PASS it exits with 1
+PASS it names the folder
+STEP a run with nothing to run > exits with 2 on a bad option
+PASS an unknown option exits with 2
+PASS it names the option
+PASS a -j below 1 exits with 2
+PASS it says why
+RESULT: 18 passed, 0 failed
